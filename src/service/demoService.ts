@@ -17,15 +17,23 @@ export class DemoService {
     return `${this.demoApiUrl}${path}`;
   }
 
+  private getHeaders(withAuth = true): Record<string, string> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': 'true',
+    };
+    if (withAuth) {
+      headers.Authorization = `Bearer ${this.resSystemStore.getToken()}`;
+    }
+    return headers;
+  }
+
   public async getDemoData() {
     // rtStatusTypeId=1&
     const url = this.getApiUrl(`/api/dw/repairTicket?page=1&pageSize=10`);
     return await fetch(url, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.resSystemStore.getToken()}`,
-      },
+      headers: this.getHeaders(),
     }).then(response => response.json()).then(data => {
       console.log('data', data)
       if(data.message == "success"){
@@ -39,10 +47,7 @@ export class DemoService {
     const url = this.getApiUrl('/api/dw/repairTicket');
     return await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.resSystemStore.getToken()}`,
-      },
+      headers: this.getHeaders(),
       body: JSON.stringify(data),
     }).then(response => response.json()).then(data => {
       console.log('data', data)
@@ -57,10 +62,7 @@ export class DemoService {
     const url = this.getApiUrl(`/api/dw/repairTicket/${data.rtId}`);
     return await fetch(url, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.resSystemStore.getToken()}`,
-      },
+      headers: this.getHeaders(),
       body: JSON.stringify(data),
     }).then(response => response.json()).then(data => {
       console.log('data', data)
@@ -76,10 +78,7 @@ export class DemoService {
     const url = this.getApiUrl('/api/dw/workOrder');
     return await fetch(url, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.resSystemStore.getToken()}`,
-      },
+      headers: this.getHeaders(),
     }).then(response => response.json()).then(data => {
       if (data.message == 'success' && data.response?.rows) {
         return data.response.rows;
@@ -105,10 +104,7 @@ export class DemoService {
     const url = this.getApiUrl('/api/dw/workOrder');
     return await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.resSystemStore.getToken()}`,
-      },
+      headers: this.getHeaders(),
       body: JSON.stringify(body),
     }).then(response => response.json()).then(data => {
       if (data.message == 'success') {
@@ -133,10 +129,7 @@ export class DemoService {
     const url = this.getApiUrl(`/api/dw/workOrder/${woId}`);
     return await fetch(url, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.resSystemStore.getToken()}`,
-      },
+      headers: this.getHeaders(),
       body: JSON.stringify(body),
     }).then(response => response.json()).then(data => {
       if (data.message == 'success') {
@@ -151,10 +144,7 @@ export class DemoService {
     const url = this.getApiUrl('/api/dw/serviceRating');
     return await fetch(url, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.resSystemStore.getToken()}`,
-      },
+      headers: this.getHeaders(),
     }).then(response => response.json()).then(data => {
       if (data.message == 'success' && data.response?.rows) {
         return data.response.rows;
@@ -171,10 +161,7 @@ export class DemoService {
     const url = this.getApiUrl('/api/dw/lineStaffToken');
     return await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.resSystemStore.getToken()}`,
-      },
+      headers: this.getHeaders(),
     }).then(response => response.json()).then(data => {
       if(data.status){
         return data.response.token
@@ -188,10 +175,7 @@ export class DemoService {
     const url = this.getApiUrl('/api/dw/repairStaff');
     return await fetch(url, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.resSystemStore.getToken()}`,
-      },
+      headers: this.getHeaders(),
     }).then(response => response.json()).then(data => {
       if (data.message == 'success' && data.response?.rows) {
         return data.response.rows;
@@ -207,9 +191,7 @@ export class DemoService {
     const url = this.getApiUrl('/api/dww/repairTicket/liff');
     const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: this.getHeaders(false),
       body: JSON.stringify(data),
     });
     let responseData: any = null;

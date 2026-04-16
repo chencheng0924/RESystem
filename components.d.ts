@@ -32,6 +32,7 @@ declare module 'vue' {
     DemoHome: typeof import('./src/views/pages/demo/demoHome.vue')['default']
     DemoRating: typeof import('./src/views/pages/demo/demoRating.vue')['default']
     DemoRepair: typeof import('./src/views/pages/demo/demoRepair.vue')['default']
+    DemoRepairStaff: typeof import('./src/views/pages/demo/demoRepairStaff.vue')['default']
     DemoRoleManagement: typeof import('./src/views/pages/demo/demoRoleManagement.vue')['default']
     DemoUserManagement: typeof import('./src/views/pages/demo/demoUserManagement.vue')['default']
     Department: typeof import('./src/views/pages/platform/Department.vue')['default']

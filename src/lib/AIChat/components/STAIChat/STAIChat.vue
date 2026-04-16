@@ -16,7 +16,7 @@ const route = useRoute()
 const { t, locale } = useI18n()
 
 const userStore = UPPreferenceStore();
-let userEntity = new UsrEntity(userStore.getUserEntity());
+let userEntity = userStore.getUserEntity();
 
 
 const style = new useStyle()
@@ -51,7 +51,6 @@ import { MenuItem } from 'primevue/menuitem';
 import { STAction } from '@/components/smartcityui/STCommon.model';
 import { MicStatus } from '../../model/Mic.model';
 import { UPPreferenceStore } from '@/stores/userProfilePreference/UPPreferenceStore';
-import { UsrEntity } from '@/model/entity/UsrEntity';
 const { history, undo, redo } = useRefHistory(controller.apiChatData)
 watch(() => controller.apiChatData.value, (newValue) => {
   // controller.apiChatList.value = history.value.reverse()

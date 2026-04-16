@@ -17,7 +17,6 @@ import STForm from './STForm.vue';
 import STFilter from './STFilter.vue'
 import { ActionEnum, STAction } from './STCommon.model'
 import { ThemeSwitchController } from './STThemeMode.compsable';
-import STMarkdownEditor from '@/components/smartcityui/Markdown/STMarkdownEditor.vue'
 import STTab from './STTab.vue';
 import { STTabAction } from './STTab.model';
 import { useDebounceFn } from '@vueuse/core'
@@ -460,8 +459,7 @@ const inputSearchPt= {
         </Paginator>
         <Popover ref="op">
             <div v-if="selectedText" class="rounded flex flex-col w-[500px]">
-                <STMarkdownEditor :value="selectedText" id="selectedText" :readOnly="true" height="300px">
-                </STMarkdownEditor>
+                <div class="max-h-[300px] overflow-auto whitespace-pre-wrap break-words">{{ selectedText }}</div>
             </div>
         </Popover>
 

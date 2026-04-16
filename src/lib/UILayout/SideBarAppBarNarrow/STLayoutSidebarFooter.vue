@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { UsrEntity } from "@/model/entity/UsrEntity";
 import { UPPreferenceStore } from "@/stores/userProfilePreference/UPPreferenceStore";
 import { ref, onMounted, watch } from "vue"
 import { useRouter, useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useLangStore } from '@/stores/langStore';
 import { EnvUtils } from "@/utils/envUtils";
-import { UsrService } from "@/service/entity/Usr.service";
 import { TokenData, TokenService, UserData } from "@/service/TokenService";
 import { PageBuilder } from "@/lib/pageBuilder/base/PageBuilder";
 import { PageAction } from "@/lib/pageBuilder/core/PageAction";
@@ -20,14 +18,12 @@ const { t, locale } = useI18n();
 const route = useRoute()
 const version = EnvUtils.getVersion()
 let userStore = UPPreferenceStore()
-let uEntity: UsrEntity = userStore.getUserEntity();
 let activeTenant = ref({ key: '', value: '--' })
 let tenantsList = null
 const router = useRouter()
-const name = ref(uEntity?.name);
+const name = ref(userStore.getUserEntity()?.name);
 const chatName = name.value?.[0] ?? ''
 const langStore = useLangStore()
-const userService = new UsrService();
 const tokenSvc = new TokenService();
 langStore.reloadSetLang()
 const menuStore = MenuStore()
@@ -76,9 +72,7 @@ const toggleEvent = (event) => {
 const SetTenantInit = async () => {
     let tokenEntity = await tokenSvc.getCurrentToken();
     let uData = tokenEntity.getUser();
-    let tenants = await userService.getAvailableTenants(uEntity?.id)
-    tenantsList = tenants
-    activeTenant.value = tenants?.find(x => x.key == uData?.tenant) ;
+    activeTenant.value = { key: uData?.tenant, value: uData?.tenant } ;
 }
 
 

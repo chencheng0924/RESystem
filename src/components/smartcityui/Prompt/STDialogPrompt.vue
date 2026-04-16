@@ -44,10 +44,9 @@
       <SplitterPanel class="flex items-start" :size="70">
       <div class="w-full">
  
-      <STMarkdownEditor 
-                                    :value="context" :readOnly=true 
-                                    height="500px"
-                                    ></STMarkdownEditor>
+      <div class="h-[500px] w-full overflow-y-auto rounded-[6px] border border-foneBorder p-3 whitespace-pre-wrap break-words">
+        {{ context }}
+      </div>
 
       </div>
       </SplitterPanel>
@@ -64,7 +63,6 @@
 </style>
 
 <script setup lang="ts">
-import STMarkdownEditor from '@/components/smartcityui/Markdown/STMarkdownEditor.vue'
 import { ref, watchEffect } from 'vue';
 import { STDialogPromptItem } from './STDialogPrompt';
 import { useI18n } from 'vue-i18n';

@@ -1,15 +1,12 @@
-import { TenantEntity } from "@/model/entity/TenantEntity";
-import { UsrEntity } from "@/model/entity/UsrEntity";
 
 export class UPPreference {
 
-    public TenantEntity: TenantEntity
+    public TenantEntity
     public PageRowLimit: number = 100;
-    public UserEntity: UsrEntity
+    public UserEntity
 
     constructor(init?) {
         Object.assign(this, init);
-        this.TenantEntity = new TenantEntity();
         this.TenantEntity.id = "30261659951063040"
         this.TenantEntity.name = "鴻海"
     }

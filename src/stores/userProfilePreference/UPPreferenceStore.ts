@@ -1,6 +1,4 @@
 import { defineStore } from "pinia";
-import { UPPreference } from "./UPPreferenceStore.moel";
-import { TenantEntity } from "@/model/entity/TenantEntity";
 
 export const UPPreferenceStore = defineStore('UserProfilePreferenceStore', {
     persist: true,
@@ -13,7 +11,7 @@ export const UPPreferenceStore = defineStore('UserProfilePreferenceStore', {
     getters: {
     },
     actions: {
-        getTenant(): TenantEntity {
+        getTenant() {
             return this.TenantEntity;
         },
         setUserEntity(user) {

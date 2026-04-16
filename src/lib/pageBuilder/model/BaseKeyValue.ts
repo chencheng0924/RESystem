@@ -1,6 +1,4 @@
-import { VMKeyValue } from "@/api/rbasic/model";
-
-export class BaseKeyValue implements VMKeyValue {
+export class BaseKeyValue {
     key?: string;
     value?: string;
     id?: string;

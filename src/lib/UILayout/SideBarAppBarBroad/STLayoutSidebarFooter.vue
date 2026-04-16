@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { UsrEntity } from "@/model/entity/UsrEntity";
 import { Logincheck } from "@/service/Logincheck";
 import { RecentListHistoryStore } from "@/stores/RecentList/RecentListHistoryStore";
 import { useGuestToken } from "@/stores/tokenStore";
@@ -33,7 +32,7 @@ const { t, locale } = useI18n();
 const route = useRoute()
 const version = EnvUtils.getVersion()
 let userStore = UPPreferenceStore()
-let uEntity: UsrEntity = userStore.getUserEntity();
+let uEntity = userStore.getUserEntity();
 let activeTenant = ref({ key: '', value: '--' })
 let tenantsList = null
 const router = useRouter()

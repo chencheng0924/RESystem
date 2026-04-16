@@ -16,7 +16,6 @@ import { STPasswordRuleType } from '@/components/smartcityui/STPasswordRule.mode
 import STAIChat from '@/lib/AIChat/components/STAIChat/STAIChat.vue'
 import { STSliderProps } from '@/components/smartcityui/STSlider.model'
 import { SliderSlideEndEvent } from 'primevue/slider'
-import STMarkdownEditor from '@/components/smartcityui/Markdown/STMarkdownEditor.vue'
 import STMultiSelectSearch from '@/components/smartcityui/STMultiSelectSearch.vue'
 import STKeyValue from '@/components/smartcityui/STKeyValue.vue'
 import { useDebounceFn } from '@vueuse/core'
@@ -637,13 +636,6 @@ const radioButtonPt={
 
                                     <STAIChat v-if="item.Type === STFormItemType.AI"
                                         @eventInit="(c) => { CompomentInit(c, item) }"></STAIChat>
-
-                                    <STMarkdownEditor v-if="item.Type === STFormItemType.MarkdownEditor"
-                                        :value="item.Value" :name="item.Id" :id="item.Id" :readOnly="item.IsDisabled"
-                                        :height="item.MarkdownHeight"
-                                        @update:value="(val) => { updateMarkdown(val, item) }"
-                                        :insertText="item.InsertText"></STMarkdownEditor>
-
 
                                     <div v-if="item.Type === STFormItemType.Slider"
                                         class="w-full flex items-center gap-[8px]">

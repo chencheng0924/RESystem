@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch, computed,nextTick } from 'vue';
+import { ref } from 'vue';
 import 'primeicons/primeicons.css'
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -70,46 +70,6 @@ let actionColumn = props.columns?.filter(x => x.isActions() == true).firstOrDefa
 const products=[]
 
 
-const  truncate=(text: string, length: number)=> {
-    if(text == null || text == "")
-    return "";
-  return text.length > length ? text.slice(0, length) + '...' : text
-}
-
-const getText=(item,data)=>
-{
-    let text =   item.cellValue == undefined ? truncate(data[item.field],item.truncateNum) : truncate(item.cellValue(item, data),item.truncateNum)
-    return text;
-}
-
-const getTextFull=(item,data)=>
-{
-    let text =   item.cellValue == undefined ? data[item.field] : item.cellValue(item, data)
-    return text;
-}
-
-const IsInfo=(item,data)=>
-{
-   let text = getText(item,data);
-   if(text=="")
-    return false;
-
-   if(text.length >item.truncateNum )
-    return true;
-
-    return false;
-}
-const op = ref();
-const selectedText = ref();
-const clickText=(e,item)=>{
-    op.value.hide();
-    selectedText.value = item;
-    nextTick(() => {
-        op.value.show(e);
-    });
-    
-}
-
 </script>
 <template>
     <div v-if="columns.length > 0" class="w-full h-full px-[1.5rem]">
@@ -179,13 +139,6 @@ const clickText=(e,item)=>{
             :pt="style.paginatorStyleOption.value" :currentPageReportTemplate="t('Components.STTable.Paginator_Total', { totalRecords: props.pageParams.totalRows })"
             template="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown JumpToPageInput" :rowsPerPageOptions="[10, 50, 100]">
         </Paginator>-->
-        <Popover ref="op">
-            <div v-if="selectedText" class="rounded flex flex-col w-[500px]">
-                 <STMarkdownEditor :value="selectedText" id="selectedText" :readOnly="true" height="300px"></STMarkdownEditor>
-            </div>
-        </Popover> 
-
-
     </div>
     <div v-else>
         <DataTable :value="products">

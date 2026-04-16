@@ -1,7 +1,6 @@
 import { FilePart } from './../A2A/A2AMModel';
 import { IChat } from '../interface/IChat';
 import { ChatSendParams } from '../model/Chat.model';
-import { STAiAgentService } from '../service/STAIChatService';
 import { AIChatStore, useAIChatStore } from '../store/AIChatStore';
 
 import { A2AClient } from '../A2A/A2AClient';
@@ -15,12 +14,11 @@ import { FlowElement } from '../model/FlowNode.model';
 import { events, stream } from 'fetch-event-stream';
 
 export class A2A023Chat implements IChat {
-  private chatSvc: STAiAgentService
+  private chatSvc
   private AIChatStore: AIChatStore
   private tokenSvc = new TokenService();
   private client: A2AClient
   constructor() {
-    this.chatSvc = new STAiAgentService()
     this.AIChatStore = useAIChatStore()
 
   }

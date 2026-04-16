@@ -1,4 +1,3 @@
-import { FileResourceApiRstorageBasicFileResourceGetRequest } from './../api/rstorageApi/api';
 import { BaseService } from './BaseService';
 
 

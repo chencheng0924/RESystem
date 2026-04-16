@@ -2,7 +2,6 @@ import { ref, Ref, nextTick, watch } from 'vue'
 import { InputTextPassThroughOptions } from 'primevue/inputtext'
 import { FileUploadPassThroughOptions } from 'primevue/fileupload'
 import { STAichatAgentData, STAichatProps, STAiMessage, STAiMessageItem, STAiSettingProps, ChatNotice, ChatNoticeType, STAIChatDepsType, STImgItem, STFileItem } from '../../model/STAIChat.model'
-import { STAiAgentService } from '@/lib/AIChat/service/STAIChatService'
 import { STMenubarAction } from '@/components/smartcityui/STMenubar.model'
 import { ThemeSwitchController } from '@/components/smartcityui/STThemeMode.compsable'
 import { MenuItem } from 'primevue/menuitem'
@@ -66,7 +65,7 @@ export class useAiChat {
   public intutMes?: Ref<string>
   public saveInputMes?: Ref<string>
 
-  public aiSvc?: STAiAgentService
+  public aiSvc?
   public chatRoomEntity?: any
 
   public apiChatData?: any
@@ -115,9 +114,6 @@ export class useAiChat {
 
     // 是否能上傳多張圖片
     this.isMultipleFile = ref(false)
-
-    this.aiSvc = new STAiAgentService()
-
 
     this.startChatType = ref(true)
     this.type = ref(2)

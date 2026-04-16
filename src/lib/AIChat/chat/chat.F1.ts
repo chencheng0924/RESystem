@@ -1,14 +1,12 @@
 import { IChat } from '../interface/IChat';
 import { ChatSendParams } from '../model/Chat.model';
-import { STAiAgentService } from '../service/STAIChatService';
 import { AIChatStore, useAIChatStore } from '../store/AIChatStore';
 
 export class F1Chat implements IChat {
-  private chatSvc: STAiAgentService
+  private chatSvc
   private AIChatStore: AIChatStore
 
   constructor() {
-    this.chatSvc = new STAiAgentService()
     this.AIChatStore = useAIChatStore()
   }
 

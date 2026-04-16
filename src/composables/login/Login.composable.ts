@@ -28,9 +28,9 @@ export class LoginController {
 
     // 獲取驗證碼
     public async getCaptchaImg() {
-        const result = await this.loginSvc.getCaptchaImg()
-        this.loginCaptchaImg.value = new LoginCaptchaImg().setContentAndDate(result.image, result.id)
-        this.loginAccount.value.captchaId = result.id
+        // const result = await this.loginSvc.getCaptchaImg()
+        // this.loginCaptchaImg.value = new LoginCaptchaImg().setContentAndDate(result.image, result.id)
+        // this.loginAccount.value.captchaId = result.id
     }
 
     // 獲取token

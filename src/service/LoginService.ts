@@ -5,7 +5,6 @@ import { AxisContentType } from '@/api/RestApiService';
 import { UserService } from './UserService';
 import { TokenData, TokenService, UserData } from './TokenService';
 import { UPPreferenceStore } from '@/stores/userProfilePreference/UPPreferenceStore';
-import { UsrEntity } from "@/model/entity/UsrEntity";
 import { LoginAccount } from '@/model/Login.model';
 import { Session } from '@/utils/sessionManagement';
 import { EnvUtils } from '@/utils/envUtils';
@@ -95,12 +94,9 @@ export class LoginService {
     private async setUserData(guestToken) {
         const tokenEntity = new TokenData(guestToken)
         const uData: UserData = tokenEntity.getUser();
-        let u = new UserService();
-        await u.api.resetHeaderOps();
-        let uEntity = new UsrEntity(await u.getEntity(uData.userId, false));
 
         let userStore = UPPreferenceStore();
-        userStore.setUserEntity(uEntity);
+        userStore.setUserEntity(uData);
 
     }
 

@@ -67,14 +67,6 @@ export class ForgetPasswordController {
                 password: this.resetPasswordData.value.password,
                 confirmPassword: this.resetPasswordData.value.confirmPassword,
             }
-            await this.loginSvc.resetForgetPassword(params).then(res => {
-                this.successCountdown.value = 5;
-                this.startCountdown(this.successCountdown, () => {
-                    if (this.onSuccessTimeout) {
-                        this.onSuccessTimeout();
-                    }
-                });
-            })
         }
     }
 
@@ -159,14 +151,6 @@ export class ForgetPasswordController {
 
     public async sendCaptchaCode() {
         this.hasSendEmail.value = true;
-        await this.loginSvc.sendForgetPasswordEmail(this.resetPasswordData.value.email).then(res => {
-            this.countdownSeconds.value = 60;
-            this.startCountdown(
-                this.countdownSeconds, 
-                undefined, 
-                this.isCountingDown
-            );
-        })
     }
 
     public startSuccessCountdown() {

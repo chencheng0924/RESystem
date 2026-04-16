@@ -39,7 +39,8 @@ export class SideBarAppBarNarrowController extends UILayoutBase {
                 label: "管理頁面", path: "/demoManagement", icon: 'ic_trend', key: "demoManagement",
                 children: [
                     new SidebarMenuItem({ label: "用戶管理", path: "/demoUserManagement", icon: 'ic_bell', key: "demoUserManagement" }),
-                    new SidebarMenuItem({ label: "租戶角色", path: "/demoRoleManagement", icon: 'ic_align_justify', key: "demoRoleManagement" })
+                    new SidebarMenuItem({ label: "維修人員", path: "/demoRepairStaff", icon: 'ic_align_justify', key: "demoRepairStaff" }),
+                    // new SidebarMenuItem({ label: "租戶角色", path: "/demoRoleManagement", icon: 'ic_align_justify', key: "demoRoleManagement" })
                 ]
 
             }),

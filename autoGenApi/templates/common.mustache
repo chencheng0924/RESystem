@@ -1,0 +1,218 @@
+
+import { AxisContentType } from './model';
+import { AxiosHeaders, AxiosRequestConfig, AxiosInstance } from 'axios';
+
+type basePathProps = string;
+type ParamItemsProps = {type: RequestPlacement, key: string, value: any}
+type HeaderParams = Record<string, any>;
+type KeyValuePair = [string, any];
+type QueryParams = Array<KeyValuePair>;
+type QueryStringParams = Array<KeyValuePair>;
+enum RequestType {
+    GET = 'GET',
+    POST = 'POST',
+    DELETE = 'DELETE',
+    PATCH = 'PATCH',
+    PUT = 'PUT',
+}
+export enum RequestPlacement {
+    QUERY = 'query',
+    HEADER = 'header',
+    DATA = 'data',
+    PATH = 'path',
+    QUERYSTRING = 'querystring'
+}
+export interface IGlobalAxiosService {
+    axiosHeaders?: AxiosHeaders | undefined;
+	basePath: basePathProps;
+    globalAxios: AxiosInstance;
+}
+// 從apiFactory傳入的全域axios共用配置
+export class GlobalAxiosService {
+    protected axiosHeaders: AxiosHeaders | undefined;
+	protected basePath: basePathProps;
+    protected globalAxios: AxiosInstance;
+	constructor({ axiosHeaders, basePath, globalAxios}:IGlobalAxiosService) {
+        this.axiosHeaders = axiosHeaders;
+		this.basePath = basePath;
+        this.globalAxios = globalAxios
+	}
+
+     setHeader(key: string, value: string) {
+        this.axiosHeaders.set(key, value);
+    }
+}
+
+// 自動生成時，axios配置
+export class AxiosService {
+    static convertParamsPlacement<P>(url: string, params: P){
+        const queryParams:  QueryParams = []
+        const queryStringArr: QueryStringParams= []
+        const headerParams: HeaderParams = {};
+        (Array.isArray(params) ? params : []).forEach((param: ParamItemsProps) => {
+            if(param.value !== null){
+                switch(param.type){
+                    case RequestPlacement.PATH:
+                        url = this.substituteRouteVariables(url, param);
+                        break;
+                    case RequestPlacement.QUERY:
+                        queryParams.push([param.key, param.value]);
+                        break;
+                    case RequestPlacement.HEADER:
+                        this.addHeaderParam(headerParams, param);
+                        break;
+                    case RequestPlacement.DATA:
+                        this.addDataParams(queryParams, param);
+                        break;
+                    case RequestPlacement.QUERYSTRING:
+                        this.addQueryStringParams(queryStringArr, param);
+                        break;
+                }
+            }
+        });
+        
+        let queryString = this.buildQueryString(queryStringArr);
+        let paramsFromatByMethod = this.flattenParams(queryParams)
+		return {
+            path: url,
+            params: paramsFromatByMethod,
+            headers: headerParams,
+            querystring: queryString
+		}
+	}
+    static substituteRouteVariables(url: string, param: ParamItemsProps) {
+        const key = param.key.charAt(0).toLowerCase() + param.key.slice(1);
+        const regex = new RegExp(`{${key}}`, 'g');
+        return url.replace(regex, param.value);
+    }
+    static addHeaderParam(headerParams: HeaderParams, param: ParamItemsProps) {
+        if (param.key === 'XApiVersion') {
+            headerParams['X-Api-Version'] = param.value;
+        } else {
+            headerParams[param.key] = param.value;
+        }
+    }
+    static addDataParams(queryParams: QueryParams, param: ParamItemsProps) {
+        if(Array.isArray(param.value) || param.key === 'VMKeyValue'){ 
+            param.value.forEach((item: any) => { queryParams.push(item); }); 
+        }else{ 
+            Object.entries(param.value).forEach(([key, value]) => { queryParams.push([key, value]); }); 
+        } 
+    }
+    static addQueryStringParams(queryStringArr: HeaderParams, param: ParamItemsProps) {
+        if (Array.isArray(param.value)) {
+            param.value.forEach((val: any) => {
+                queryStringArr.push([param.key, val]);
+            });
+        } else {
+            queryStringArr.push([param.key, param.value]);
+        }
+    }
+    static buildQueryString(queryStringArr: HeaderParams) {
+        return queryStringArr
+            .map(([key, value]: KeyValuePair) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+            .join('&');
+    }
+    static flattenParams(queryParams: QueryParams) {
+        if (!queryParams?.every((item: KeyValuePair) => Array.isArray(item))) {
+            return queryParams;
+        }
+        return queryParams.reduce((acc: any, [key, value]: KeyValuePair) => {
+            acc[key] = value;
+            return acc;
+        }, {});
+    }
+
+    static async request<P>({url, globalAxios, method = RequestType.GET, axiosHeaders, paramsArr}:{url: string, globalAxios:AxiosInstance, method: RequestType, axiosHeaders: AxiosHeaders,  paramsArr?: P}) {
+        const { path, params, headers, querystring } = this.convertParamsPlacement(url, paramsArr);
+        let fullPath = `${path}${querystring ? '?' + querystring : ''}`;
+        let data: any;
+        if (axiosHeaders['Content-Type'] === AxisContentType.JSON_DATA) {
+            data = params;
+        } else if (axiosHeaders['Content-Type'] === AxisContentType.FORM_DATA) {
+            data = new FormData();
+            Object.entries(params).forEach(([key, value]) => {
+                if(Array.isArray(value)){
+                    value.forEach(item => {
+                        data.append(key, item);
+                    });
+                }else{
+                    data.append(key, params[key]);
+                }
+            });
+        } else if(axiosHeaders['Content-Type'] === AxisContentType.ENCODED_DATA){
+            data = new URLSearchParams();
+            Object.entries(params).forEach(([key, value]) => {
+                if(Array.isArray(value)){
+                    value.forEach(item => {
+                        data.append(key, item);
+                    });
+                }else{
+                    data.append(key, params[key]);
+                }
+            });
+            data = data.toString();
+        }
+        const settings: AxiosRequestConfig = {
+            method,
+            url: fullPath,
+            ...data && method !== RequestType.GET ? {data: data } : {},
+            headers: {
+                ...axiosHeaders,
+                ...headers,
+            },
+        };
+        const response = await globalAxios.request(settings)
+        return response;
+    }
+    static async get<P>(url: string, globalAxios: AxiosInstance, { params, axiosHeaders }: { params?: P, axiosHeaders: AxiosHeaders }) {
+        return this.request<P>({url, globalAxios, method:RequestType.GET, axiosHeaders, paramsArr: params});
+    }
+    static async post<P>(url: string, globalAxios: AxiosInstance, { params, axiosHeaders }: { params?: P, axiosHeaders: AxiosHeaders }) {
+        return this.request<P>({url, globalAxios, method:RequestType.POST, axiosHeaders, paramsArr: params});
+    }
+    static async delete<P>(url: string, globalAxios: AxiosInstance, { params, axiosHeaders }: { params?: P, axiosHeaders: AxiosHeaders }) {
+        return this.request<P>({url, globalAxios, method:RequestType.DELETE, axiosHeaders, paramsArr: params});
+    }
+    static async patch<P>(url: string, globalAxios: AxiosInstance, { params, axiosHeaders }: { params?: P, axiosHeaders: AxiosHeaders }) {
+        return this.request<P>({url, globalAxios, method:RequestType.PATCH, axiosHeaders, paramsArr: params});
+    }
+    static async put<P>(url: string, globalAxios: AxiosInstance, { params, axiosHeaders }: { params?: P, axiosHeaders: AxiosHeaders }) {
+        return this.request<P>({url, globalAxios, method:RequestType.PUT, axiosHeaders, paramsArr: params});
+    }
+}
+
+// 傳入的parameters區隔成query, data, header
+export class BasicRequestService<T extends HeaderParams>  {
+    axiosHeaders: AxiosHeaders;
+    parameters: Array<{type: RequestPlacement, key?: string, value: any}> | undefined;
+    fileType: AxisContentType;
+    requestParameters: T | undefined;
+    constructor({axiosHeaders, parameters, requestParameters, fileType = AxisContentType.JSON_DATA}:{axiosHeaders?: AxiosHeaders, parameters?: Array<{type: RequestPlacement, key: string, value: any}> | undefined, requestParameters?: T, fileType?: AxisContentType}){
+        this.axiosHeaders = new AxiosHeaders({
+            ...axiosHeaders,
+            'Content-Type': fileType,
+        });
+        this.parameters = parameters
+        this.fileType = fileType
+        this.requestParameters = requestParameters
+    }
+    getHeaders(){
+        return this.axiosHeaders
+    }
+    fillValues(){
+        if((this.parameters?.length ?? 0) > 0){
+            return this.parameters?.map(item => ({
+                ...item,
+                value: this.requestParameters?.[item.key as string] ?? item.value
+            }));
+        }else{
+            return Object.entries(this.requestParameters ?? {})?.map(([key, value]) => {
+                return { type: RequestPlacement.QUERY, key: key, value: value };
+            });
+        }
+    }
+    getRequestOptions(){
+        return { params: this.fillValues(), axiosHeaders: this.getHeaders() }
+    }
+} 

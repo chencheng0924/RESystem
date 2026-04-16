@@ -1,0 +1,16 @@
+import { BasicRequestService, RequestPlacement } from "./common";
+import { AxiosHeaders } from "axios";
+
+export enum AxisContentType {
+    FORM_DATA = "multipart/form-data",
+    JSON_DATA = "application/json",
+    ENCODED_DATA = "application/x-www-form-urlencoded",
+}
+
+{{{componentInterface}}}
+
+{{#pathViews}}
+{{{requestInterface}}}
+{{{requestPartialType}}}
+{{{requestServiceClass}}}
+{{/pathViews}}

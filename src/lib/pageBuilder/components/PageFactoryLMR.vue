@@ -1,0 +1,549 @@
+<script setup lang="ts">
+import {  onMounted, ref, watch,onUnmounted, computed } from "vue";
+import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router';
+//-------primevue
+import Drawer from 'primevue/drawer'
+import { useToast } from "primevue/usetoast";
+import { ToastMessageOptions } from 'primevue/toast';
+//-------pageBuilder core
+import { PageBuilder } from "@/lib/pageBuilder/base/PageBuilder";
+import { PageAction } from '@/lib/pageBuilder/core/PageAction';
+import { PageEventBus, PageEventEnum } from '../mitt/PageEventBus';
+import { PageSavingType } from '@/stores/PageLayout/PageSavingType';
+import PagePanelTitle from '@/lib/pageBuilder/components/PagePanelTitle.vue'
+
+//------store
+import { ReloadStore } from '@/stores/reloadStore.ts';
+import { PageLayoutStore } from '@/stores/PageLayout/PageLayoutStore';
+
+import { STIconButtonProps } from "@/components/smartcityui/STIconButton.model";
+import { STCardProps } from "@/components/smartcityui/STCard.model";
+import { STFormItem } from "@/components/smartcityui/STForm.model";
+import { ThemeSwitchController } from "@/components/smartcityui/STThemeMode.compsable";
+import { ApiErrorItem } from "@/utils/apiErrorShow";
+
+
+const pageStore = PageLayoutStore()
+const route = useRoute()
+const router = useRouter()
+const { t, locale } = useI18n()
+const key = ref(0);
+const toast = useToast();
+const emit = defineEmits(['submit', "change",
+
+"eventSplideCardClicked","eventEditorUpdate","eventManualSave","eventSaveHistory","eventLoadHistory"
+])
+
+const props = defineProps({
+  L: {   // 左側預設寬度
+    type: Number,
+    default: 22,
+    required: false
+  },
+  expandControllerVisible: {   // 展開左/右側控制鈕
+    type: Boolean,
+    default: false,
+    required: false
+  },
+   className: {
+        type:String,
+        default:''
+    },
+    pkid: {
+        type:String,
+         default:''
+    }
+});
+let isauto = true;
+if(props.className != "")
+isauto = false
+
+let controller = new PageBuilder(t, locale, route, router,isauto);
+controller.setMittUpdateViewEvent(controller.pageView.value)
+
+if(isauto ==false){
+  
+controller.getInit(props.className,props.pkid);
+}
+
+
+
+
+const actionItem = async (item: PageAction) => {
+  controller.pageView.value = await controller.pageView.value.DrawerView.CallAction(controller.pageView.value, item);
+
+}
+
+watch(() => controller.pageView.value.DrawerView.UpdateKey,
+  (newValue, oldValue) => {
+    //console.log('updateKey', newValue, oldValue)
+    controller.updateDrawerSection();
+    //controller.updateView(controller.pageView.value);
+    controller.pageView.value.DrawerView.resetUpdateKey()
+  }
+)
+
+watch(() => controller.pageView.value.DrawerVisibleRight,
+  (newValue, oldValue) => {
+    controller.updateDrawerSection();
+    // exceptionUpdate() // fix (AiProject頁面，新增時左側active id會被重刷)
+  }
+)
+watch(() => controller.pageView.value.DialogVisible,
+  (newValue, oldValue) => {
+    controller.updateDialogSection();
+  }
+)
+// watch(() => controller.pageView.value.currentToast.ToastKey,
+//   (newValue, oldValue) => {
+
+//     let t = controller.pageView.value.currentToast;
+//     let def = { severity: 'info', summary: 'Info', detail: 'Message Content', life: 3000 } as ToastMessageOptions;
+//     let ops = {
+//       severity: t.SeverityColor.toString(),
+//       summary: t.Title,
+//       detail: t.Text,
+//       life: t.Time
+//     }
+
+//     Object.assign(def, ops);
+//     toast.add(def);
+//     //controller.updateDrawerSection();
+//   }
+// )
+watch(() => controller.pageView.value.RouterPath.getRouter(),
+  (newValue, oldValue) => {
+
+    router.push(newValue)
+    // controller = new PageBuilder(t, locale, route, newValue);
+    // key.value++;
+  }
+)
+const reload = ReloadStore()
+watch(() => controller.pageView.value.reload.ReloadKey,
+  (newValue, oldValue) => {
+
+    console.log("reload.reloadKey", reload.reloadKey++);
+    reload.reloadKey++;
+  }
+)
+
+const dw = ref('!w-full md:!w-80 lg:!w-[40rem]');
+const dwWidth = ref('40rem');
+watch(() => controller.pageView.value.DrawerView.Width,
+  (newValue, oldValue) => {
+
+    // dw.value = `!w-full md:!w-80 lg:!w-[${newValue}] !w-[${newValue}]`;
+    dw.value = `!w-[${newValue}]`;
+    dwWidth.value = newValue;
+  }
+)
+
+const leftBtn = new STIconButtonProps({
+  iconUrl: 'ic_autofit_left_primary'.getIcon('svg'),
+  tooltipText: '展開右側'
+})
+const rightBtn = new STIconButtonProps({
+  iconUrl: 'ic_autofit_right_primary'.getIcon('svg'),
+  tooltipText: '展開左側'
+})
+const splitterKey = ref(0)
+const reRender = () => {
+  splitterKey.value += 1
+}
+
+const LSize = ref(props.L)
+const changeSize = (side: string) => {
+  if (side == 'left') LSize.value = 1
+  else LSize.value = 99
+  reRender()
+}
+
+const exceptionUpdate = () => {
+  if (route.path.includes('AIProject')) {
+    controller.updateEntitySection(controller.pageView.value, 'AiProject_tabs')
+    return
+  } else if (route.path.includes('AIAgentEdit')) {
+    controller.updateEntitySection(controller.pageView.value, 'AIAgentEdit')
+    return
+  }
+  controller.updateView(controller.pageView.value);
+}
+
+
+
+const eventFunction=(eventName,data)=>{
+
+  //console.log(`${eventName}`,data);
+  if(eventName ==PageEventEnum.PageSecUpdateAll )
+  {
+      controller.updateView(controller.pageView.value);
+    
+  }
+  else if(eventName ==PageEventEnum.PageSecUpdateByOne )
+  {
+    let path = data as string;
+    controller.updateEntitySection(controller.pageView.value , path);
+
+  }
+  else if(eventName ==PageEventEnum.PageSecDrawerUpdate )
+  {
+    let path = data as string;
+    controller.updateDrawerSection();
+
+  }
+  else if(eventName == PageEventEnum.ApiError)
+  {
+    toast.removeAllGroups();
+    let item:ApiErrorItem = data as ApiErrorItem;
+        toast.add({ severity: 'error', summary: `API Error: ${item.errorCode}`, detail: t(item.errorMsg), life: 5000 })
+  }
+  else if (eventName == PageEventEnum.FormItemSaved) {
+      pageStore.setSavingSaved()
+
+  }
+  else if (eventName == PageEventEnum.FormItemSaveFailed) {
+      pageStore.setSavingFailed()
+  }
+  else if (eventName == PageEventEnum.FormItemSaveing) {
+      pageStore.setSaving()
+  }
+  else if(eventName ==PageEventEnum.SendToast )
+  {
+    let t = controller.pageView.value.currentToast;
+    let def = { severity: 'info', summary: 'Info', detail: 'Message Content', life: 3000 } as ToastMessageOptions;
+    let ops = {
+      severity: t.SeverityColor.toString(),
+      summary: t.Title,
+      detail: t.Text,
+      life: t.Time
+    }
+    if( t.Text != undefined &&  t.Text !=null &&  t.Text != ""){
+      Object.assign(def, ops);
+      toast.add(def);
+    }
+    
+  }
+
+}
+onMounted(async () => {
+    toast.removeAllGroups();
+    PageEventBus.getInstance.onMonitor(eventFunction);
+ 
+})
+
+
+onUnmounted(()=>{
+    PageEventBus.getInstance.offMonitor(eventFunction);
+})
+
+//-----------------------------------------------------------------------
+
+const manualSave=()=> {
+    emit('eventManualSave')
+  }
+
+
+const eventPageAction=(e,item)=>{
+  controller.pageView.value.SetEvent_PageAction(item);
+}
+
+
+</script>
+
+
+<template>
+  <Toast>
+  </Toast>
+
+  <div v-if="controller.pageView.value.DialogVisible">
+    <component :id="controller.pageView.value.DialogView.DialogSection.Id"
+      :is="controller.getComponent(controller.pageView.value.DialogView.DialogSection)"
+      :type="controller.pageView.value.DialogView.DialogSection.SectionType" v-bind="{
+        ...controller.pageView.value.DialogView.DialogSection.Props,
+        ...controller.pageView.value.DialogView.DialogSection.Attrs
+      }" :model-value="controller.pageView.value.DialogView.DialogSection.Props?.value"
+      v-on="{ ...controller.pageView.value.DialogView.DialogSection.Events }" />
+  </div>
+
+  <Drawer v-model:visible="controller.pageView.value.DrawerVisibleRight"
+    :header="controller.pageView.value.DrawerView.DrawerSection.Title" position="right" :class="dw" :style="{ width: dwWidth + ' !important' }">
+    <template #header>
+      <div class="flex items-center gap-2">
+        <Tag :severity="controller.pageView.value.DrawerView.DrawerSection.Badge.SeverityColor"
+          :value="t(controller.pageView.value.DrawerView.DrawerSection.Badge.Text)" />
+        <span class="font-bold text-2xl">{{ t(controller.pageView.value.DrawerView.DrawerSection.Title) }}</span>
+      </div>
+    </template>
+    <Message severity="error" v-if="!!controller.pageView.value.DrawerView.Message.Text">
+      <div v-html="t(controller.pageView.value.DrawerView.Message.Text)"></div>
+    </Message>
+    <div :key="controller.pageView.value.DrawerView.DrawerSection.Id" >
+      <component :key="controller.pageView.value.DrawerView.UpdateKey"
+      :id="controller.pageView.value.DrawerView.DrawerSection.Id"
+      :is="controller.getComponent(controller.pageView.value.DrawerView.DrawerSection)"
+      :type="controller.pageView.value.DrawerView.DrawerSection.SectionType"
+      v-bind="{ ...controller.pageView.value.DrawerView.DrawerSection.Props, ...controller.pageView.value.DrawerView.DrawerSection.Attrs }"
+      :model-value="controller.pageView.value.DrawerView.DrawerSection.Props?.value"
+      v-on="{ ...controller.pageView.value.DrawerView.DrawerSection.Events }" />
+    </div>
+   
+
+    <template #footer>
+      <div class="flex items-center gap-2">
+        <Button @click="actionItem(item)" :disabled="!item.Enable" class="flex-auto" :icon="item.Icon"
+          :outlined="item.IsOutlined" :severity="item.SeverityColor" :text="item.IsText"
+          v-for="(item, index) in controller.pageView.value.DrawerView.DrawerSection.FormOps.CustomAction" :key="index"
+          :label="t(item.Text)" v-prevent-reclick="2000" />
+      </div>
+    </template>
+  </Drawer>
+
+  <div v-if="controller.pageView.value.ProgressBar">
+    <ProgressBar mode="indeterminate" style="height: 2px"></ProgressBar>
+  </div>
+
+  <div v-for="(sec, index) in controller.pageView.value.PageSections" :key="index" class="w-full">
+    <div v-if="sec.IsPanel == false">
+      <div class="w-full py-2" v-if="sec.Display">
+        <div class="" :key="sec.Id">
+          <component :id="sec.Id" :is="{ ...sec.Component }" :type="sec.SectionType"
+            v-bind="{ ...sec.Props, ...sec.Attrs }" :model-value="sec.Props?.value" v-on="{ ...sec.Events }" />
+        </div>
+
+      </div>
+    </div>
+    <div v-else>
+      <div class="w-full py-2" v-if="sec.Display">
+        <div class="text-center md:text-left flex align-items-center">
+          <div class="w-full">
+            <PagePanelTitle :props="sec.PanelItem">
+              <component :id="sec.Id" :is="controller.getComponent(sec)" :type="sec.SectionType"
+                v-bind="{ ...sec.Props, ...sec.Attrs }" :model-value="sec.Props?.value" v-on="{ ...sec.Events }" 
+                :key="sec.Id"
+                />
+            </PagePanelTitle>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+
+  </div>
+
+  <div class="flex justify-between w-full pt-2 !rounded-[6px]"
+    :style="{ '--panel-height': 'calc(100vh - 68px - 20px)'  }">
+    <Splitter class="w-full h-full" :key="splitterKey" >
+      <SplitterPanel class="flex items-center justify-center relative h-full" :size="LSize">
+      
+        <!-- 這邊div的高度會影響 ListView 的 lazy loading -->
+        <div class="bg-crmBgLevel1 h-[calc(100vh-68px)] w-full overflow-y-scroll"
+        :class="{ '!h-[calc(100vh-68px)]': route.path.includes('AIAgentEdit') }">
+          <div
+            v-for="(sec, index) in controller.getEntitySectionByLeft()"
+            :key="index" class="h-full" v-memo="[sec.Props]">
+            <div v-if="sec.IsPanel == false" class="h-full">
+              <div class="w-full h-full" v-if="sec.Display">
+                <div class="text-center md:text-left flex align-items-center h-full" :key="sec.Id">
+                  <component v-memo="[sec.Id, sec.Props, sec.Attrs, sec.Events]" 
+                    :is="controller.getComponent(sec)" 
+                    v-bind="{ ...sec.Props, ...sec.Attrs }"  v-on="{ ...sec.Events }" />
+                </div>
+
+              </div>
+            </div>
+            <div v-else>
+              <div class="w-full" v-if="sec.Display">
+                <div class="text-center md:text-left flex align-items-center">
+                  <div class="w-full">
+                    <PagePanelTitle :props="sec.PanelItem">
+                      <Message :closable="sec.Message.IsColse" :severity="sec.Message.SeverityColor"
+                        v-if="!!sec.Message.Text">
+                        <div v-html="sec.Message.Text"></div>
+                      </Message>
+                      <div :key="sec.Id">
+                        <component v-memo="[sec.Id, sec.Props, sec.Attrs, sec.Events]" 
+                          :is="controller.getComponent(sec)" v-bind="{ ...sec.Props, ...sec.Attrs }"
+                           v-on="{ ...sec.Events }" />
+                      </div>
+                    </PagePanelTitle>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </SplitterPanel>
+      <SplitterPanel class="flex items-center justify-center relative" :size="100 - LSize">
+       
+        <div class="w-full h-full" >
+          
+            <div class="w-full flex flex-col h-full">
+              
+               <!-- LR Sections -->
+              <div class="flex !h-[var(--panel-height)]">
+             
+                <Splitter  class="w-full" v-if="controller.isMiddleEntitySection()==false">
+                    <SplitterPanel class="flex items-center justify-center relative " :size="100"  >
+                   
+                    <div class="flex flex-col !h-[var(--panel-height)] overflow-y-scroll w-full !bg-foneBg">
+                       <!-- Topbar -->
+                    <div v-if="controller.pageView.value.IsToolBar"
+                      class="flex items-center justify-end px-[16px] bg-foneBgLevel1 py-2 mb-3">
+                        <Button v-tooltip.top="t(ac.Text)"
+                                    v-for="ac in controller.pageView.value.PageActions"
+                                    :icon="ac.Icon" text rounded :aria-label="t(ac.Text)"
+                                     @click="(e)=>{ eventPageAction(e,ac)}"
+                                    />
+                      <div class="flex items-center">
+                        <div class="flex items-center gap-[4px]">
+                          <img src="@/assets/img/icon/ic_check_grey.svg" alt="" v-if="pageStore.savingStatus == PageSavingType.SAVED">
+                          <ProgressSpinner style="width: 16px; height: 16px" strokeWidth="8" fill="transparent" animationDuration="1.5s"
+                            aria-label="Custom ProgressSpinner" v-if="pageStore.savingStatus == PageSavingType.SAVING" />
+                          <span class="text-h5 text-foneTextLevel2">{{ pageStore.savingStatusText }}</span>
+                        </div>
+
+                        <Button icon="pi pi-save" rounded text
+                          :disabled="pageStore.savingStatus == PageSavingType.SAVING || pageStore.savingStatus == PageSavingType.SAVED"
+                          @click="() => { manualSave() }" />
+
+                      </div>
+                    
+                    </div>
+
+                      <div v-for="(rightSec, idx) in controller.getEntitySectionByRight()" class="flex flex-col gap-[1rem] pb-3">
+ 
+                          <div v-if="rightSec.IsPanel == false" class="h-full">
+                          <div class="w-full h-full" >
+                            <div class="text-center md:text-left flex align-items-center h-full" :key="rightSec.Id">
+                              <component v-memo="[rightSec.Id, rightSec.Props, rightSec.Attrs, rightSec.Events]" 
+                                :is="controller.getComponent(rightSec)" 
+                                v-bind="{ ...rightSec.Props, ...rightSec.Attrs }"  v-on="{ ...rightSec.Events }" />
+                            </div>
+
+                          </div>
+                        </div>
+                        <div :key="rightSec.Id" v-else>
+
+                           <STPanel toggleable >
+                             <template #header key="header">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-[4px] h-[16px] bg-fonePrimaryMain"></div>
+                                        <h4 class="font-bold">{{ t(rightSec.Title) }}</h4>
+                                    </div>
+                                </template>
+                                <component
+                            v-memo="[rightSec.Id, rightSec.Props, rightSec.Attrs, rightSec.Events]"
+                            :id="rightSec.Id"
+                            :is="controller.getComponent(rightSec)"
+                            v-bind="{ ...rightSec.Props, ...rightSec.Attrs }"
+                            :model-value="rightSec.Props?.value" v-on="{ ...rightSec.Events }" />
+                            </STPanel>
+
+                        </div>
+                      </div>
+                    </div>
+                  </SplitterPanel>
+    
+                </Splitter>
+
+
+                <Splitter class="w-full" v-if="controller.isMiddleEntitySection()">
+                  <SplitterPanel class="flex items-center justify-center relative" :size="50" >
+                   
+                     <div class="flex flex-col !h-[var(--panel-height)] overflow-y-scroll w-full">
+                      <div v-for="(rightSec, idx) in controller.getEntitySectionByMiddle()" class="flex flex-col gap-[1rem]">
+                        <div class="text-h3 text-foneTextLevel1 px-[1.5rem] pt-[1rem]" 
+                        v-if="rightSec.IsPanel">{{ rightSec.Title }}
+                        </div>
+                        <div :key="rightSec.Id">
+                          <component
+                            v-memo="[rightSec.Id, rightSec.Props, rightSec.Attrs, rightSec.Events]"
+                            :id="rightSec.Id"
+                            :is="controller.getComponent(rightSec)"
+                            v-bind="{ ...rightSec.Props, ...rightSec.Attrs }"
+                            :model-value="rightSec.Props?.value" v-on="{ ...rightSec.Events }" />
+                        </div>
+                      </div>
+                    </div>
+                  </SplitterPanel>
+                  <SplitterPanel class="flex items-center justify-center relative " :size="50"  >
+                   
+                    <div class="flex flex-col !h-[var(--panel-height)] overflow-y-scroll w-full !bg-foneBg">
+                       <!-- Topbar -->
+                    <div
+                      class="flex items-center justify-end px-[16px] bg-foneBgLevel1 py-2">
+                     
+                       <Button v-tooltip.top="t(ac.Text)"
+                                    v-for="ac in controller.pageView.value.PageActions"
+                                    :icon="ac.Icon" text rounded :aria-label="t(ac.Text)"
+                                    @click="(e)=>{ eventPageAction(e,ac)}"
+                                    />
+
+                      <div class="flex items-center">
+                        <div class="flex items-center gap-[4px]">
+                          <img src="@/assets/img/icon/ic_check_grey.svg" alt="" v-if="pageStore.savingStatus == PageSavingType.SAVED">
+                          <ProgressSpinner style="width: 16px; height: 16px" strokeWidth="8" fill="transparent" animationDuration="1.5s"
+                            aria-label="Custom ProgressSpinner" v-if="pageStore.savingStatus == PageSavingType.SAVING" />
+                          <span class="text-h5 text-foneTextLevel2">{{ pageStore.savingStatusText }}</span>
+                        </div>
+
+                        <Button icon="pi pi-save" rounded text
+                          :disabled="pageStore.savingStatus == PageSavingType.SAVING || pageStore.savingStatus == PageSavingType.SAVED"
+                          @click="() => { manualSave() }" />
+
+                      </div>
+                    
+                    </div>
+
+                      <div v-for="(rightSec, idx) in controller.getEntitySectionByRight()" class="flex flex-col gap-[1rem] pt-3">
+ 
+                         <div v-if="rightSec.IsPanel == false" class="h-full">
+                          <div class="w-full h-full" >
+                            <div class="text-center md:text-left flex align-items-center h-full" :key="rightSec.Id">
+                              <component v-memo="[rightSec.Id, rightSec.Props, rightSec.Attrs, rightSec.Events]" 
+                                :is="controller.getComponent(rightSec)" 
+                                v-bind="{ ...rightSec.Props, ...rightSec.Attrs }"  v-on="{ ...rightSec.Events }" />
+                            </div>
+
+                          </div>
+                        </div>
+                        <div :key="rightSec.Id" v-else>
+
+                           <STPanel toggleable >
+                             <template #header key="header">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-[4px] h-[16px] bg-fonePrimaryMain"></div>
+                                        <h4 class="font-bold">{{ t(rightSec.Title) }}</h4>
+                                    </div>
+                                </template>
+                                <component
+                            v-memo="[rightSec.Id, rightSec.Props, rightSec.Attrs, rightSec.Events]"
+                            :id="rightSec.Id"
+                            :is="controller.getComponent(rightSec)"
+                            v-bind="{ ...rightSec.Props, ...rightSec.Attrs }"
+                            :model-value="rightSec.Props?.value" v-on="{ ...rightSec.Events }" />
+                            </STPanel>
+
+                        </div>
+                      </div>
+                    </div>
+                  </SplitterPanel>
+                </Splitter>
+              </div>
+            </div>
+          
+          
+          
+           <!---->
+
+        </div>
+      </SplitterPanel>
+    </Splitter>
+  </div>
+</template>
+

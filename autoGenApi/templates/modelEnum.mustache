@@ -1,0 +1,6 @@
+export type {{keyGroupName}} = keyof typeof {{keyGroupName}}Origin
+export enum {{keyGroupName}}Origin {
+{{#enumGroups}}
+    {{{key}}} = {{{value}}},
+{{/enumGroups}}
+}

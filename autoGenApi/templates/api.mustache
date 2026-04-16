@@ -1,0 +1,49 @@
+import { {{#apiResources}}{{apiResource}}, {{/apiResources}}} from './model';
+import { AxiosService, GlobalAxiosService, IGlobalAxiosService } from './common';
+
+export default class {{apiBase}} {
+{{#level1}}
+    {{apiGroup}}: {{apiGroup}}
+{{/level1}}
+    constructor(config:IGlobalAxiosService) {
+        {{#level1}}
+        this.{{apiGroup}} = new {{apiGroup}}(config)
+        {{/level1}}
+    }
+}
+
+
+{{#level2}}
+{{#apiEntities.length}}
+class {{apiGroup}} {
+    {{#apiEntities}}
+    {{apiEntity}}: {{apiGroup}}{{apiEntity}}
+    {{/apiEntities}}
+    constructor(config:IGlobalAxiosService) {
+        {{#apiEntities}}
+        this.{{apiEntity}} = new {{apiGroup}}{{apiEntity}}(config);
+        {{/apiEntities}}
+    }
+}
+{{/apiEntities.length}}
+{{/level2}}
+
+
+{{#level3}}
+{{#apiEntities}}
+class {{apiGroup}}{{#apiEntity}}{{apiEntity}}{{/apiEntity}} extends GlobalAxiosService {
+    {{#repeatVariables}}
+    {{key}}:{{value}}
+    {{/repeatVariables}}
+    constructor(config: IGlobalAxiosService) { 
+		super(config);
+        {{#repeatVariables}}
+        this.{{key}} = new {{value}}(config)
+        {{/repeatVariables}}
+    }
+    {{#methods}}
+    {{{methodTemplate}}}
+    {{/methods}}
+}
+{{/apiEntities}}
+{{/level3}}

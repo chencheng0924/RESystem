@@ -1,0 +1,508 @@
+{
+  "info": {
+    "_postman_id": "daea39bd-2a0d-4161-a8b6-1718b9a93f77",
+    "name": "ezGtg_DW",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "15029366",
+    "_collection_link": "https://go.postman.co/collection/15029366-daea39bd-2a0d-4161-a8b6-1718b9a93f77?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "ez",
+      "item": [
+        {
+          "name": "POST - login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ezMbId\": \"Acha\",\n  \"ezMbMinma\": \"1357\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ezGtg}}/api/ez/login",
+              "host": [
+                "{{ezGtg}}"
+              ],
+              "path": [
+                "api",
+                "ez",
+                "login"
+              ]
+            },
+            "description": "http://127.0.0.1:8000/api/order"
+          },
+          "response": []
+        },
+        {
+          "name": "POST - register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ezMbId\": \"Acha\",\n  \"ezMbMinma\": \"1357\",\n  \"ezMbName\": \"13\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ezGtg}}/api/ez/register",
+              "host": [
+                "{{ezGtg}}"
+              ],
+              "path": [
+                "api",
+                "ez",
+                "register"
+              ]
+            },
+            "description": "http://127.0.0.1:8000/api/order"
+          },
+          "response": []
+        },
+        {
+          "name": "POST - refreshToken",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"deb97ee4ceadcf8a2dde7de85c7111cedcd66ce74c59cc2760d8fcb4b200f51decd8a602907d3b9a\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ezGtg}}/api/ez/refresh",
+              "host": [
+                "{{ezGtg}}"
+              ],
+              "path": [
+                "api",
+                "ez",
+                "refresh"
+              ]
+            },
+            "description": "http://127.0.0.1:8000/api/order"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "案件管理",
+      "item": [
+        {
+          "name": "GET - 查詢單一案件",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJBY2hhIiwidXNlck5hbWUiOiIxMyIsImlhdCI6MTc3NTE1NDk0OCwiZXhwIjoxNzc1MTU4NTQ4fQ.8SiVzuMO1AgoGO4H6wxDfoLD9s7FUQ7K35RKlHffpuY",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ezGtg}}/api/dw/repairTicket/detail/2",
+              "host": [
+                "{{ezGtg}}"
+              ],
+              "path": [
+                "api",
+                "dw",
+                "repairTicket",
+                "detail",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET - 取得所有案件",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJBY2hhIiwidXNlck5hbWUiOiIxMyIsImlhdCI6MTc3NTE1NDk0OCwiZXhwIjoxNzc1MTU4NTQ4fQ.8SiVzuMO1AgoGO4H6wxDfoLD9s7FUQ7K35RKlHffpuY",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ezGtg}}/api/dw/repairTicket?rtStatusTypeId=1&page=1&pageSize=10",
+              "host": [
+                "{{ezGtg}}"
+              ],
+              "path": [
+                "api",
+                "dw",
+                "repairTicket"
+              ],
+              "query": [
+                {
+                  "key": "rtStatusTypeId",
+                  "value": "1"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST - 建立單一案件（管理員）",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rtResidentLine\": \"UXXXXXXXXXXXX\",\n  \"rtTitle\": \"暖氣不冷\",\n  \"rtDescription\": \"開了很久都沒有暖氣，疑似故障\",\n  \"rtContactName\": \"梁小姐\",\n  \"rtContactPhone\": \"0912345678\",\n  \"rtAddress\": \"新北市板橋區文化路一段100號\",\n  \"rtImages\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ezGtg}}/api/dw/repairTicket",
+              "host": [
+                "{{ezGtg}}"
+              ],
+              "path": [
+                "api",
+                "dw",
+                "repairTicket"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT - 修改單一案件",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rtStatusTypeId\": 2,\n  \"rtResidentLine\": \"UXXXXXXXXXXXX\",\n  \"rtTitle\": \"冷氣不冷, 暖氣不熱\",\n  \"rtDescription\": \"開了很久都沒有冷暖氣，疑似故障\",\n  \"rtContactName\": \"梁曉樂\",\n  \"rtContactPhone\": \"0912345678\",\n  \"rtAddress\": \"新北市板橋區文化路一段100號\",\n  \"rtImages\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ezGtg}}/api/dw/repairTicket/1",
+              "host": [
+                "{{ezGtg}}"
+              ],
+              "path": [
+                "api",
+                "dw",
+                "repairTicket",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "派工管理",
+      "item": [
+        {
+          "name": "GET - 取得所有派工單",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ezGtg}}/api/dw/workOrder",
+              "host": [
+                "{{ezGtg}}"
+              ],
+              "path": [
+                "api",
+                "dw",
+                "workOrder"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST - 建立單一派工單",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"woRtId\": 2,\n    \"woStaffLine\": \"U63e99e6a988bfe7d4a0fb7a53b407e59\",\n    \"woStaffPhone\": \"0912345678\",\n    \"woStaffName\": \"李師傅\",\n    \"woStatusTypeId\": 1,\n    \"woScheduledAt\": \"2026-03-30 10:00:00\",\n    \"woRepairContent\": \"安排3/30早上處理\",\n    \"woImages\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ezGtg}}/api/dw/workOrder",
+              "host": [
+                "{{ezGtg}}"
+              ],
+              "path": [
+                "api",
+                "dw",
+                "workOrder"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT - 修改單一派工單",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"woStatusTypeId\": 2,\n    \"woStaffPhone\": \"0987654321\",\n    \"woStaffName\": \"李師傅\",\n    \"woRepairContent\": \"已更換零件，測試還是失敗\",\n    \"woImages\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ezGtg}}/api/dw/workOrder/1",
+              "host": [
+                "{{ezGtg}}"
+              ],
+              "path": [
+                "api",
+                "dw",
+                "workOrder",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "評價管理",
+      "item": [
+        {
+          "name": "GET - 取得所有評價",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ezGtg}}/api/dw/serviceRating",
+              "host": [
+                "{{ezGtg}}"
+              ],
+              "path": [
+                "api",
+                "dw",
+                "serviceRating"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST - 建立案件評價",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"srRtId\": 2,\n    \"srWoId\": 2,\n    \"srOverallScore\": 5,\n    \"srAttitudeScore\": 5,\n    \"srQualityScore\": 4,\n    \"srTimelinessScore\": 4,\n    \"srComment\": \"服務很好，應該吧\",\n    \"srSignedName\": \"任先生\",\n    \"srSignatureUrl\": \"https://example.com/signature.png\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ezGtg}}/api/dw/serviceRating",
+              "host": [
+                "{{ezGtg}}"
+              ],
+              "path": [
+                "api",
+                "dw",
+                "serviceRating"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "LIFF管理",
+      "item": [
+        {
+          "name": "POST - 建立單一案件 (住戶)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idToken\": \"LINE_ID_TOKEN_這裡放LIFF拿到的\",\n  \"rtCommunityName\": \"威風\",\n  \"rtUnit\": \"A棟12樓1203\",\n  \"rtTitle\": \"浴室漏水\",\n  \"rtAddress\": \"新北市板橋區XX路100號\",\n  \"rtDescription\": \"天花板一直滴水，越來越嚴重\",\n  \"rtResidentName\": \"王先森\",\n  \"rtResidentPhone\": \"02-\",\n  \"rtResidentMobile\": \"\",\n  \"rtContactName\": \"李曉潔\",\n  \"rtContactPhone\": \"\",\n  \"rtContactMobile\": \"\",\n  \"rtIsUrgent\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ezGtg}}/api/dw/repairTicket/liff",
+              "host": [
+                "{{ezGtg}}"
+              ],
+              "path": [
+                "api",
+                "dw",
+                "repairTicket",
+                "liff"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

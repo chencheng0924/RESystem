@@ -1,0 +1,17 @@
+# 上 tag 時，會觸發
+# build docker image and then push to dp container registry, 
+# 需要指定 variable: VAR_BUILD_IMAGE_NAME
+.base_build_tag_image: 
+  script:
+    - export MODIFIED_TAG=$(echo "$CI_COMMIT_TAG" | sed 's/\//_/g')
+    - echo $MODIFIED_TAG
+    - docker build 
+      -t registry.devops.foxconn.com/dp/sc_evbus_frontend/$VAR_BUILD_IMAGE_NAME:latest
+      -t registry.devops.foxconn.com/dp/sc_evbus_frontend/$VAR_BUILD_IMAGE_NAME:$MODIFIED_TAG
+      -f Dockerfile .
+    - docker push --all-tags
+      registry.devops.foxconn.com/dp/sc_evbus_frontend/$VAR_BUILD_IMAGE_NAME
+
+.base_get_image_tag_version_from_commit:
+  - echo $CI_COMMIT_TAG
+  - 'export LAST_TAG=$(echo "$CI_COMMIT_TAG" | sed "s/\//_/g")'

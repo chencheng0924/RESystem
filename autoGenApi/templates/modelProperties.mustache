@@ -1,0 +1,5 @@
+export interface {{keyGroupName}} {
+{{#interfaceGroups}}
+    {{key}}{{#isRequired}}:{{/isRequired}}{{^isRequired}}?:{{/isRequired}} {{{value}}};
+{{/interfaceGroups}}
+}

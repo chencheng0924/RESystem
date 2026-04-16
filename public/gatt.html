@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>淹水應變｜多路線（電車 + 調度接駁）調度前後班表模擬</title>
+<style>
+  :root{
+    --bg:#0b0f16; --panel:#0f172a; --line:#1e293b; --axis:#94a3b8; --text:#e5e7eb;
+    --muted:#9fb0c7; --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444;
+    --chip:#0f1a27; --chipbr:#223247;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial}
+  header{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,rgba(11,15,22,.95),rgba(11,15,22,.85));backdrop-filter: blur(6px);border-bottom:1px solid #0a0e15}
+  .wrap{max-width:1280px;margin:0 auto;padding:16px}
+  h1{margin:0 0 6px;font-size:20px}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:12px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .row{display:flex;gap:12px;flex-wrap:wrap}
+  .tabs{display:flex;gap:8px;margin:10px 0}
+  .tab{padding:8px 12px;border-radius:10px;border:1px solid #2a3b52;background:#0f1a27;color:#e5e7eb;cursor:pointer}
+  .tab.active{background:linear-gradient(180deg,#14233a,#0e1a2b);border-color:#334155}
+  .kpis{display:grid;grid-template-columns:repeat(5,minmax(170px,1fr));gap:10px}
+  .kpi{border:1px solid #1b2a3a;border-radius:14px;padding:12px;background:linear-gradient(180deg,#0f172a,#0b1423)}
+  .kpi h3{margin:0 0 6px;font-size:12px;color:var(--axis)}
+  .kpi .v{font-size:22px;font-weight:800}
+  .kpi .s{font-size:12px;color:var(--muted);margin-top:4px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{padding:8px 10px;border-radius:10px;border:1px solid #203044;background:#0f1a27;color:#e5e7eb;cursor:pointer}
+  .btn:active{transform:translateY(1px)}
+  .legend,.filters{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+  .chip{display:flex;align-items:center;gap:6px;border:1px solid var(--chipbr);background:var(--chip);border-radius:999px;padding:6px 10px;font-size:12px}
+  .sw{width:14px;height:14px;border-radius:4px;border:1px solid #0006}
+  select, .select{padding:8px 10px;border-radius:10px;border:1px solid #203044;background:#0f1a27;color:#e5e7eb}
+
+  /* 甘特圖避免跑版 */
+  .gantt{position:relative;overflow:auto;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,#0b111b,#0c1220)}
+  .track{display:grid;grid-template-columns:240px 1fr;border-bottom:1px dashed #1c2940;min-height:66px}
+  .label{padding:10px 12px;border-right:1px solid #1b2740;display:flex;flex-direction:column;gap:4px;justify-content:center;white-space:nowrap;cursor:pointer}
+  .label .title{font-weight:800}
+  .label .sub{font-size:12px;color:var(--muted)}
+  .lane{position:relative;height:66px;min-height:66px}
+  .axis{position:sticky;left:240px;z-index:3;background:linear-gradient(180deg,rgba(15,23,42,.95),rgba(15,23,42,.6));border-bottom:1px solid #1f2733}
+  .tick{position:absolute;top:0;bottom:0;border-left:1px solid #1e2a40}
+  .tick .t{position:absolute;top:0;transform:translate(-50%,0);font-size:12px;color:var(--axis);background:rgba(2,6,13,.6);padding:2px 4px;border-radius:6px;white-space:nowrap}
+  .now{position:absolute;top:0;bottom:0;border-left:2px dashed var(--bad);pointer-events:none}
+  .impact{position:absolute;top:6px;bottom:6px;border-left:1px dashed #ef444499;border-right:1px dashed #ef444499;
+    background:repeating-linear-gradient(45deg,#ef444220 0 10px,#ef444230 10px 20px);
+    border-radius:8px;pointer-events:none}
+
+  /* 任務卡片：顯示「代碼 + 時刻區間 + 區間文字」；狹窄時自動精簡 */
+  .task{
+    position:absolute;height:40px;border-radius:10px;display:flex;align-items:center;gap:8px;
+    padding:0 10px;border:1px solid #0005;white-space:nowrap;overflow:hidden;max-width:100%;
+  }
+  .task .nm{
+    flex:0 0 auto;font-weight:800;
+    padding:2px 6px;border-radius:6px;background:rgba(255,255,255,.06);border:1px solid #0003;
+  }
+  .task .times{flex:0 0 auto;font-variant-numeric:tabular-nums;font-weight:800}
+  .task .tt{
+    flex:1 1 auto;min-width:0; /* 允許收縮 */
+    font-size:12px;color:#e5e7ebcc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .task.tight .tt{ display:none; }         /* 太窄時隱藏區間文字 */
+  .task[data-type="deadhead"]{outline:2px dashed #8b5cf6}
+  .task[data-delay="true"]{box-shadow:0 0 0 2px var(--bad) inset, 0 4px 10px #ef444422}
+  .delay-cap{position:absolute;right:-1px;top:-1px;bottom:-1px;border-left:1px solid #ef4444;
+    background:repeating-linear-gradient(90deg,#ef444444 0 6px,#ef444433 6px 12px)}
+
+  .hint{position:absolute;inset:auto 12px 12px auto;font-size:12px;color:#a3b2c7}
+  .footer-note{margin-top:8px;color:var(--muted);font-size:12px}
+
+  /* 小黃接駁 chip：固定高度、內文字不外溢、窄寬僅顯示時間 */
+  .chip-task{
+    position:absolute;height:28px;line-height:28px;border-radius:999px;padding:0 10px;
+    border:1px solid #0b2944;background:linear-gradient(180deg,#0e2a45,#0a1e33);color:#e5f0ff;
+    display:flex;align-items:center;gap:8px;white-space:nowrap;box-shadow:0 4px 10px #0ea5e933;cursor:pointer;
+    max-width:100%;
+  }
+  .chip-task .dot{width:8px;height:8px;border-radius:50%;background:#38bdf8;flex:0 0 auto}
+  .chip-task .times{font-variant-numeric: tabular-nums;font-weight:800;flex:0 0 auto}
+  .chip-task .txt{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .chip-task.tight .txt{ display:none; }   /* 太窄時僅顯示時間 */
+
+  /* ===== Popout（取代 alert） ===== */
+  .pop{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:50}
+  .pop.show{display:flex}
+  .pop .backdrop{position:absolute;inset:0;background:rgba(2,6,12,.55);backdrop-filter: blur(4px)}
+  .pop .sheet{
+    position:relative;width:min(560px,calc(100% - 32px));
+    background:linear-gradient(180deg,#0e1525,#0b1220);border:1px solid #203044;border-radius:16px;
+    box-shadow:0 24px 60px rgba(0,0,0,.45)
+  }
+  .pop .hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #1b2a3a}
+  .pop .title{font-weight:800}
+  .pop .x{border:0;background:transparent;color:#cfd8e3;font-size:22px;cursor:pointer}
+  .pop .bd{padding:12px 14px;display:grid;grid-template-columns:120px 1fr;gap:8px 12px}
+  .pop .k{color:#9fb0c7;text-align:right}
+  .pop .v{color:#e5e7eb;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pop .ft{display:flex;justify-content:flex-end;padding:10px 14px;border-top:1px solid #1b2a3a}
+  .pop .btn{padding:8px 12px;border-radius:10px;border:1px solid #203044;background:#0f1a27;color:#e5e7eb;cursor:pointer}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>淹水應變｜多路線（電車 + 調度接駁）調度前後班表模擬</h1>
+    <div class="meta">
+      <div>日期：<strong>2025-09-19</strong></div>
+      <div>事件：<strong>區域性淹水封閉 11:30–13:30</strong></div>
+      <div>展示：調度前（延誤）｜調度後（小黃接駁取代原班次，分配到各列）</div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card">
+    <div class="row" style="align-items:center">
+      <label class="select">路線視圖：
+        <select id="routeView">
+          <option value="ALL">全部路線</option>
+        </select>
+      </label>
+      <div class="toolbar">
+        <button class="btn" id="zoom-out">縮小</button>
+        <button class="btn" id="zoom-in">放大</button>
+        <button class="btn" id="toggle-scale">切換刻度（小時/半小時）</button>
+        <button class="btn" id="jump-now">置中到現在</button>
+      </div>
+    </div>
+    <div class="kpis" id="kpis" style="margin-top:10px"></div>
+  </section>
+
+  <section class="card" style="margin-top:12px">
+    <div class="tabs">
+      <button class="tab active" data-view="before">調度前（Before）</button>
+      <button class="tab" data-view="after">調度後（After，接駁分配到各列）</button>
+    </div>
+    <div class="row">
+      <div class="filters" id="filters"></div>
+    </div>
+    <div class="legend" id="legend"></div>
+    <div id="gantt" class="gantt" style="height:620px;margin-top:10px"></div>
+    <div class="footer-note">提示：紅色斜紋為淹水封閉時窗；<span style="color:#38bdf8">藍色膠囊 = 小黃接駁（已取代原班次）</span>、<span style="color:#8b5cf6">紫虛線 = 調度/回庫</span>；延誤以<span style="color:#ef4444">右側紅條</span>顯示。</div>
+  </section>
+</main>
+
+<!-- Popout -->
+<div id="pop" class="pop" aria-hidden="true">
+  <div class="backdrop" data-close></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="popTitle">
+    <div class="hdr">
+      <div id="popTitle" class="title">詳情</div>
+      <button class="x" title="關閉" data-close>&times;</button>
+    </div>
+    <div class="bd" id="popBody"></div>
+    <div class="ft"><button class="btn" data-close>關閉</button></div>
+  </div>
+</div>
+
+<script>
+/** ========= EAL 車隊 ========= */
+const EAL_FLEET_ALL = [
+  "EAL-0198","EAL-2680","EAL-2681","EAL-2682","EAL-2683","EAL-2685","EAL-2686","EAL-2687",
+  "EAL-2688","EAL-2689","EAL-2690","EAL-2691","EAL-2692","EAL-2693","EAL-2695","EAL-2696",
+  "EAL-2697","EAL-2698"
+];
+
+/** ========= 亂碼車牌（不含 TAXI） ========= */
+function randPlate(){
+  const A = ()=> "ABCDEFGHJKLMNPQRSTUVWXYZ"[Math.floor(Math.random()*23)];
+  const D = ()=> "0123456789"[Math.floor(Math.random()*10)];
+  return `${A()}${A()}${D()}-${D()}${D()}${A()}${A()}`;
+}
+
+/** ========= 司機名冊 ========= */
+const DRIVER_POOL = ["王O明","李O華","陳O安","張O強","吳O玲","林O杰","周O鳴","許O文","趙O潔","孫O誠","鄭O豪","楊O凱","侯O群","高O鎮","蔡O寬","簡O廷","鐘O弘","傅O浩","韓O傑","賴O淳","張O瑋","鄧O龍","葉O軒"];
+const DRIVERS = Object.fromEntries(
+  EAL_FLEET_ALL.map((p,i)=>[p, DRIVER_POOL[i % DRIVER_POOL.length]])
+);
+
+/** ========= 路線設定 ========= */
+const ROUTES = {
+  "KHH504": { rid:"KHH504", code:"E04", name:"E04燕巢學園快線", endpoints:["高鐵左營站","高師大燕巢校區"], color:"#60a5fa" },
+  "KHH60":  { rid:"KHH60",  code:"60",  name:"60覺民幹線",     endpoints:["駁二藝術特區","夢裡活動中心"],   color:"#34d399" },
+  "KHH6001":{ rid:"KHH6001",code:"6001",name:"60覺民幹線區間車", endpoints:["駁二藝術特區","長庚醫院"],     color:"#22c55e" },
+  "KHH911": { rid:"KHH911", code:"911", name:"橘11A",           endpoints:["林園站","捷運衛武營站"],       color:"#f59e0b" },
+  "KHH9112":{ rid:"KHH9112",code:"9112",name:"橘11A區間車",     endpoints:["林園站","臺鐵鳳山站"],         color:"#eab308" },
+  "KHH912": { rid:"KHH912", code:"912", name:"橘12（日延澄清湖）", endpoints:["中崙社區","長庚紀念醫院"], color:"#a78bfa" }
+};
+const ROUTE_IDS = Object.keys(ROUTES);
+const SHUTTLE_RID = "0F01";
+const INCIDENT = { start:"11:30", end:"13:30", title:"淹水封閉" };
+
+/** ========= 分配車輛到路線 ========= */
+const perRoute = Math.max(3, Math.floor(EAL_FLEET_ALL.length / ROUTE_IDS.length));
+const routeFleetMap = {}; let idx=0;
+ROUTE_IDS.forEach(r=>{
+  routeFleetMap[r] = [];
+  for(let i=0;i<perRoute && idx<EAL_FLEET_ALL.length;i++,idx++) routeFleetMap[r].push(EAL_FLEET_ALL[idx]);
+});
+EAL_FLEET_ALL.slice(idx).forEach((p,i)=> routeFleetMap[ROUTE_IDS[i % ROUTE_IDS.length]].push(p));
+
+/** ========= 小工具 ========= */
+function S(hm){ const [h,m]=hm.split(':').map(n=>+n); return h*60+m; }
+function L(m){ const h=String(Math.floor(m/60)).padStart(2,'0'); const mm=String(m%60).padStart(2,'0'); return `${h}:${mm}`; }
+
+/** ========= 產生 EAL 班次（Before 基礎） ========= */
+function genTripsForPlate(routeId, plate){
+  const meta = ROUTES[routeId];
+  const [A,B] = meta.endpoints;
+  const depart0 = 9*60 + Math.floor(Math.random()*15);  // 09:00±15
+  const cycle = 55; // 單程
+  const layover = 5;
+  const trips = [];
+  let t = depart0;
+  for(let k=0;k<6;k++){
+    let dep=L(t), arr=L(t+cycle);
+    trips.push({ rid:meta.code, from:A, to:B, dep, arr, type:"normal", plate });
+    t += cycle + layover;
+    dep=L(t); arr=L(t+cycle);
+    trips.push({ rid:meta.code, from:B, to:A, dep, arr, type:"normal", plate });
+    t += cycle + layover;
+    if(t > 16*60) break;
+  }
+  return trips;
+}
+function applyIncidentDelayToTrips(trips){
+  const s=S(INCIDENT.start), e=S(INCIDENT.end);
+  return trips.map(tr=>{
+    const dep=S(tr.dep), arr=S(tr.arr);
+    const overlap = !(arr<=s || dep>=e);
+    if(overlap) return { ...tr, delayMin: 15 + Math.floor(Math.random()*6) }; // 15~20
+    return tr;
+  });
+}
+
+/** ========= 移除時窗內班次並回傳替換清單 ========= */
+function splitForReplacement(trips){
+  const s=S(INCIDENT.start), e=S(INCIDENT.end);
+  const keep=[], replace=[];
+  trips.forEach(tr=>{
+    const dep=S(tr.dep), arr=S(tr.arr);
+    const overlap = !(arr<=s || dep>=e);
+    if(overlap) replace.push({ ...tr, type:'replaced' }); else keep.push(tr);
+  });
+  return { keep, replace };
+}
+
+/** ========= 由替換清單產生「分配到各列」的小黃接駁 ========= */
+function genDispatchMapFromReplaced(replacedPool){
+  if(!replacedPool || replacedPool.length===0) return {};
+  const taxis = Array.from({length:4}, ()=>({ plate:randPlate(), driver:DRIVER_POOL[Math.floor(Math.random()*DRIVER_POOL.length)] }));
+  replacedPool.sort((a,b)=> S(a.dep)-S(b.dep));
+  const dispatchByPlate = {};
+  let ti = 0;
+  replacedPool.forEach(t=>{
+    const taxi = taxis[ti % taxis.length]; ti++;
+    const rec = { taxiPlate: taxi.plate, driver: taxi.driver, dep:t.dep, arr:t.arr, from:t.from, to:t.to, origRid:t.rid };
+    (dispatchByPlate[t.plate] ||= []).push(rec);
+  });
+  return dispatchByPlate;
+}
+
+/** ========= 建立場景 ========= */
+function buildScenario(){
+  const BEFORE = { routes:ROUTES, incident:INCIDENT, blocks:[] };
+  const AFTER  = { routes:ROUTES, incident:INCIDENT, blocks:[], dispatchMap:{} };
+
+  ROUTE_IDS.forEach(rid=>{
+    const plates = routeFleetMap[rid].slice(0,4);
+    let replacedPool = [];
+    plates.forEach((p,pi)=>{
+      const base = genTripsForPlate(rid, p);
+
+      const beforeTasks = applyIncidentDelayToTrips(base);
+      BEFORE.blocks.push({ plate:p, blockId:`${rid}_B${pi+1}`, tag:`${ROUTES[rid].name}`, tasks: beforeTasks });
+
+      const { keep, replace } = splitForReplacement(base);
+      replacedPool = replacedPool.concat(replace);
+      AFTER.blocks.push({ plate:p, blockId:`${rid}_A${pi+1}`, tag:`${ROUTES[rid].name}`, tasks: keep });
+    });
+    AFTER.dispatchMap[rid] = genDispatchMapFromReplaced(replacedPool);
+  });
+
+  return { BEFORE, AFTER };
+}
+const SCN = buildScenario();
+
+/** ========= 視圖狀態 ========= */
+const ganttRoot = document.getElementById('gantt');
+const legendRoot = document.getElementById('legend');
+const filtersRoot = document.getElementById('filters');
+const kpisRoot = document.getElementById('kpis');
+const routeViewSel = document.getElementById('routeView');
+const pop = document.getElementById('pop');
+const popBody = document.getElementById('popBody');
+
+let scalePerMin = 2.2;
+let hourTicks = true;
+let currentView = 'before';
+let currentRouteView = 'ALL';
+
+/** ========= Popout（open/close） ========= */
+function openPop(title, rows){
+  document.getElementById('popTitle').textContent = title||'詳情';
+  popBody.innerHTML = rows.map(([k,v])=>`<div class="k">${k}</div><div class="v">${v}</div>`).join('');
+  pop.classList.add('show'); pop.setAttribute('aria-hidden','false');
+}
+function closePop(){ pop.classList.remove('show'); pop.setAttribute('aria-hidden','true'); }
+pop.addEventListener('click', (e)=>{ if(e.target.closest('[data-close]')) closePop(); });
+window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closePop(); });
+
+/** ========= UI：路線下拉 ========= */
+(function initRouteSelect(){
+  ROUTE_IDS.forEach(r=>{
+    const opt=document.createElement('option');
+    opt.value=r; opt.textContent=`${ROUTES[r].code}｜${ROUTES[r].name}`;
+    routeViewSel.appendChild(opt);
+  });
+  routeViewSel.addEventListener('change', ()=>{
+    currentRouteView = routeViewSel.value;
+    renderScenario();
+  });
+})();
+
+/** ========= 篩選（EAL 車牌） ========= */
+function renderFilters(blocks){
+  const plates = Array.from(new Set(blocks.filter(b=>b.plate.startsWith('EAL-')).map(b=>b.plate)));
+  filtersRoot.innerHTML = plates.map(p =>
+    `<label class="chip"><input type="checkbox" data-plate="${p}" checked style="accent-color:#60a5fa"> <span class="sw" style="background:#60a5fa"></span>${p}</label>`
+  ).join('');
+  filtersRoot.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+    cb.addEventListener('change', ()=>renderScenario());
+  });
+}
+function plateVisible(plate){
+  const cb = filtersRoot.querySelector(`input[data-plate="${plate}"]`);
+  return cb? cb.checked : true;
+}
+
+/** ========= Legend ========= */
+function renderLegend(){
+  const chips = ROUTE_IDS.map(r=>{
+    const c = ROUTES[r].color;
+    return `<div class="chip"><span class="sw" style="background:${c}"></span>${ROUTES[r].code}｜${ROUTES[r].name}</div>`;
+  }).join('');
+  legendRoot.innerHTML =
+    chips +
+    `<div class="chip"><span class="sw" style="background:transparent;border:2px solid #38bdf8"></span>小黃接駁（取代原班次，分配到各列）</div>` +
+    `<div class="chip"><span class="sw" style="background:linear-gradient(90deg,#ef444444 0 50%,#ef444433 50% 100%)"></span>延誤附加（調度前）</div>`;
+}
+
+/** ========= KPI ========= */
+function renderKPIs(blocks, dispatchMap){
+  let total=0, shuttle=0, dead=0, detour=0, delayCnt=0, delayMin=0;
+  blocks.forEach(b=>{
+    if(!plateVisible(b.plate)) return;
+    b.tasks.forEach(t=>{
+      total++;
+      if(t.type==='shuttle') shuttle++;
+      else if(t.type==='deadhead') dead++;
+      else if(t.type==='detour') detour++;
+      if(t.delayMin){ delayCnt++; delayMin+=t.delayMin; }
+    });
+  });
+  if(dispatchMap){
+    Object.entries(dispatchMap).forEach(([plate, list])=>{
+      if(!plateVisible(plate)) return;
+      list.forEach(()=>{ total++; shuttle++; });
+    });
+  }
+  const rows = [
+    kpi('總任務數', total),
+    kpi('接駁（取代）', shuttle),
+    kpi('調度/回庫', dead),
+    kpi('繞道主線', detour, '（本版本 After 不使用）'),
+    kpi('延誤段數 / 分鐘', `${delayCnt} 段`, `${delayMin} 分`)
+  ];
+  kpisRoot.innerHTML = rows.join('');
+  function kpi(title, v, sub=''){ const s=sub?`<div class="s">${sub}</div>`:''; return `<div class="kpi"><h3>${title}</h3><div class="v">${v}</div>${s}</div>`; }
+}
+
+/** ========= 甘特圖 ========= */
+function computeRange(blocks){
+  let s=1e9,e=-1;
+  blocks.forEach(b=>{
+    if(!plateVisible(b.plate) || b.tasks.length===0) return;
+    b.tasks.forEach(t=>{
+      const start=S(t.dep), end=S(t.arr);
+      s=Math.min(s,start);
+      const ext = (currentView==='before' && t.delayMin)? t.delayMin:0;
+      e=Math.max(e,end+ext);
+    });
+  });
+  if(!isFinite(s)||e<0){ s=S("09:00"); e=S("16:30"); }
+  s=Math.max(0, Math.min(s, S("08:00")));
+  e=Math.max(e, S("16:30"));
+  return [s,e];
+}
+function renderAxis(minM,maxM,width){
+  const axis = document.createElement('div');
+  axis.className='track axis';
+  const lbl = document.createElement('div');
+  lbl.className='label';
+  lbl.innerHTML=`<div class="title">時間軸</div><div class="sub">${L(minM)} ~ ${L(maxM)}</div>`;
+  const lane=document.createElement('div'); lane.className='lane'; lane.style.minWidth=width+'px';
+  const step = hourTicks? 60:30;
+  for(let m=Math.ceil(minM/step)*step; m<=maxM; m+=step){
+    const x=(m-minM)*scalePerMin;
+    const tk=document.createElement('div'); tk.className='tick'; tk.style.left=x+'px';
+    const t=document.createElement('div'); t.className='t'; t.textContent=L(m); tk.appendChild(t); lane.appendChild(tk);
+  }
+  const now=new Date(); const nowM=now.getHours()*60+now.getMinutes();
+  if(nowM>=minM && nowM<=maxM){ const n=document.createElement('div'); n.className='now'; n.style.left=((nowM-minM)*scalePerMin)+'px'; lane.appendChild(n); }
+  axis.appendChild(lbl); axis.appendChild(lane); ganttRoot.appendChild(axis);
+}
+function routeColorByCode(code){
+  const r = Object.values(ROUTES).find(x=>x.code===code);
+  return r? r.color : "#93c5fd";
+}
+function ridFromBlockId(blockId){ return blockId.split('_')[0]; }
+
+/** —— 在某一列渲染小黃接駁 chip —— */
+function renderTaxiChipsForLane(lane, minM, plate, dispatchMap){
+  const list = (dispatchMap && dispatchMap[plate]) ? dispatchMap[plate] : [];
+  if(!list || list.length===0) return;
+  let rowSwitch = 0;
+  list.forEach(t=>{
+    const depM=S(t.dep), arrM=S(t.arr);
+    const left=(depM-minM)*scalePerMin;
+    const w=Math.max(32,(arrM-depM)*scalePerMin);
+    const chip=document.createElement('div'); chip.className='chip-task';
+    chip.style.left=left+'px'; chip.style.width=w+'px';
+    chip.style.top = rowSwitch? '38px' : '8px';
+    if(w < 140) chip.classList.add('tight');  // 太窄僅顯示時間
+    chip.innerHTML = `<span class="dot"></span><span class="times">${t.dep}→${t.arr}</span><span class="txt">｜${t.from}→${t.to}</span>`;
+    chip.title = `${t.taxiPlate}｜司機：${t.driver}`;
+    chip.addEventListener('click', ()=> openPop('調度接駁（取代原班次）', [
+      ['車牌', t.taxiPlate],
+      ['司機', t.driver],
+      ['原路線', t.origRid],
+      ['時間', `${t.dep} → ${t.arr}`],
+      ['區間', `${t.from} → ${t.to}`]
+    ]));
+    lane.appendChild(chip);
+    rowSwitch = 1 - rowSwitch;
+  });
+}
+
+/** ========= 主渲染 ========= */
+function renderScenario(){
+  ganttRoot.innerHTML='';
+
+  const full = (currentView==='before') ? SCN.BEFORE.blocks : SCN.AFTER.blocks;
+  const blocks = full.filter(b=>{
+    if(currentRouteView==='ALL') return true;
+    return b.blockId.includes(currentRouteView) || (b.tag && b.tag.includes(ROUTES[currentRouteView].name));
+  });
+
+  renderFilters(blocks);
+  renderLegend();
+
+  const dispatchMap = (currentView==='after')
+    ? (currentRouteView==='ALL'
+        ? mergeDispatchMaps(Object.values(SCN.AFTER.dispatchMap))
+        : SCN.AFTER.dispatchMap[currentRouteView]||{})
+    : null;
+  renderKPIs(blocks, dispatchMap);
+
+  const [minM,maxM]=computeRange(blocks);
+  const width=Math.max(1000,(maxM-minM)*scalePerMin);
+  renderAxis(minM,maxM,width);
+
+  blocks.forEach(b=>{
+    if(!plateVisible(b.plate) || b.tasks.length===0) return;
+
+    const track=document.createElement('div'); track.className='track';
+    const label=document.createElement('div'); label.className='label';
+    const s=S(b.tasks[0].dep), e=S(b.tasks[b.tasks.length-1].arr);
+    label.innerHTML=`<div class="title">${b.plate}｜${b.blockId}</div><div class="sub">${L(s)} ~ ${L(e)}｜司機：${DRIVERS[b.plate]||'—'}</div>`;
+    label.addEventListener('click', ()=> openPop('車輛資訊', [
+      ['車牌', b.plate],
+      ['司機', DRIVERS[b.plate]||'—'],
+      ['時段', `${L(s)} ~ ${L(e)}`],
+      ['路線', b.tag||'']
+    ]));
+
+    const lane=document.createElement('div'); lane.className='lane'; lane.style.minWidth=width+'px';
+
+    const iwS=S(INCIDENT.start), iwE=S(INCIDENT.end);
+    const iLeft=(iwS-minM)*scalePerMin, iW=(iwE-iwS)*scalePerMin;
+    const impact=document.createElement('div'); impact.className='impact'; impact.style.left=iLeft+'px'; impact.style.width=iW+'px';
+    impact.title = `${INCIDENT.title}｜${INCIDENT.start} - ${INCIDENT.end}`;
+    lane.appendChild(impact);
+
+    b.tasks.forEach(t=>{
+      const depM=S(t.dep), arrM=S(t.arr);
+      const left=(depM-minM)*scalePerMin;
+      const baseW=Math.max(6,(arrM-depM)*scalePerMin);
+      const el=document.createElement('div'); el.className='task';
+      const color = routeColorByCode(t.rid);
+      el.style.left=left+'px'; el.style.width=baseW+'px'; el.style.top='10px';
+      el.style.background=`linear-gradient(180deg, ${color}dd, ${color}bb)`;
+      el.style.boxShadow=`0 4px 12px ${color}33`;
+      if(baseW < 170) el.classList.add('tight');   // 太窄隱藏區間文字
+
+      const delayMin=t.delayMin||0;
+      const inImpact = !(arrM<=iwS || depM>=iwE);
+      if(delayMin>0 || (currentView==='before' && inImpact)){
+        el.dataset.delay = String(delayMin>0);
+        if(delayMin>0){
+          const cap=document.createElement('div'); cap.className='delay-cap';
+          cap.style.width = (delayMin*scalePerMin)+'px';
+          cap.title = `延誤 +${delayMin} 分`;
+          el.appendChild(cap);
+        }
+      }
+
+      el.title = `${t.dep}→${t.arr}｜${t.from}→${t.to}`;
+      el.innerHTML = `<span class="nm">${t.rid}</span><span class="times">${t.dep}→${t.arr}</span><span class="tt">${t.from}→${t.to}</span>`;
+      el.style.cursor='pointer';
+      el.addEventListener('click', ()=> openPop('班次詳情', [
+        ['車牌', b.plate],
+        ['司機', DRIVERS[b.plate]||'—'],
+        ['路線', t.rid],
+        ['時間', `${t.dep} → ${t.arr}`],
+        ['區間', `${t.from} → ${t.to}`],
+        ...(t.delayMin?[['延誤', `+${t.delayMin} 分`]]:[])
+      ]));
+      lane.appendChild(el);
+    });
+
+    if(currentView==='after'){
+      const rid = ridFromBlockId(b.blockId);
+      const mapForRoute = SCN.AFTER.dispatchMap[rid] || {};
+      renderTaxiChipsForLane(lane, minM, b.plate, mapForRoute);
+    }
+
+    track.appendChild(label); track.appendChild(lane); ganttRoot.appendChild(track);
+  });
+
+  const hint=document.createElement('div'); hint.className='hint';
+  hint.textContent = (currentView==='before')
+    ? '目前為「調度前」：淹水時窗內主線可能延誤（右側紅條）。'
+    : '目前為「調度後」：小黃接駁已取代原班次，並分配到各列；內容過長會自動縮略。';
+  ganttRoot.appendChild(hint);
+}
+
+/** 合併多個 dispatchMap（用於「全部路線」KPI） */
+function mergeDispatchMaps(maps){
+  const out={};
+  maps.forEach(m=>{
+    Object.entries(m).forEach(([plate,list])=>{
+      (out[plate] ||= []).push(...list);
+    });
+  });
+  return out;
+}
+
+/** ========= 互動 ========= */
+document.getElementById('zoom-in').onclick=()=>{ scalePerMin*=1.15; renderScenario(); };
+document.getElementById('zoom-out').onclick=()=>{ scalePerMin=Math.max(0.6,scalePerMin/1.15); renderScenario(); };
+document.getElementById('toggle-scale').onclick=()=>{ hourTicks=!hourTicks; renderScenario(); };
+document.getElementById('jump-now').onclick=()=>{
+  const full = (currentView==='before') ? SCN.BEFORE.blocks : SCN.AFTER.blocks;
+  const blocks = full.filter(b=> currentRouteView==='ALL' ? true : (b.blockId.includes(currentRouteView) || (b.tag && b.tag.includes(ROUTES[currentRouteView].name))));
+  const [minM,maxM]=computeRange(blocks);
+  const now=new Date(); const nowM=now.getHours()*60+now.getMinutes();
+  if(nowM<minM||nowM>maxM) return;
+  const x=(nowM-minM)*scalePerMin + 240;
+  ganttRoot.scrollLeft=Math.max(0,x-ganttRoot.clientWidth/2);
+};
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentView = btn.dataset.view;
+    renderScenario();
+  });
+});
+
+/** ========= 初始化 ========= */
+(function init(){
+  renderScenario();
+})();
+</script>
+</body>
+</html>

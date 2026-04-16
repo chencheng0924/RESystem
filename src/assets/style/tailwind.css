@@ -1,0 +1,631 @@
+@tailwind base;
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #9b9b9b var(--fone-bg);
+  scrollbar-width: none;
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 2px;
+  display: none;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--fone-bg);
+  border-radius: 1px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #9b9b9b;
+  border-radius: 1px;
+  border: 2px solid var(--fone-bg);
+}
+
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Noto Sans TC";
+  src: url("@/assets/fonts/NotoSans-Bold.ttf");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "Noto Sans TC";
+  src: url("@/assets/fonts/NotoSans-SemiBold.ttf");
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "Noto Sans TC";
+  src: url("@/assets/fonts/NotoSans-Medium.ttf");
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "Noto Sans TC";
+  src: url("@/assets/fonts/NotoSans-Regular.ttf");
+  font-weight: 400;
+}
+
+/* base層 */
+@layer base {
+  :root {
+    @apply font-NotoSans;
+    --fone-primary-main: #0441C4;
+    --fone-primary-bg: #E5F1FF;
+    --fone-primary-click: #0034A6;
+    --fone-primary-hover: #0146DB;
+    --fone-text-level1: #333333;
+    --fone-text-level2: #727272;
+    --fone-text-level3: #333333;
+    --fone-text-disable: #9B9B9B;
+    --fone-text-white: #ffffff;
+    --fone-bg: #f2f3f7;
+    --fone-bg-btn: #F6F6F6;
+    --fone-bg-btn2: #f3f1ff;
+    --fone-bg-level1: #fdfdfd;
+    --fone-bg-level2: #fdfdfd;
+    --fone-bg-level3: #fdfdfd;
+    --fone-bg-level4: #f6f6f6;
+    --fone-bg-level5: #fdfdfd;
+    --fone-bg-level6: #f2f3f7;
+    --fone-bg-disable: #e7e7e7;
+    --fone-bg-hover: #f3f1ff;
+    --fone-border: #d8d8d8;
+    --fone-theme-green: #62f65e;
+    --fone-theme-red: #e74852;
+    --fone-surface: #ffffff;
+    --h1-size: 24px;
+    --h1-weight: 700;
+    --h1-lineHeight: 36px;
+    --h2-size: 18px;
+    --h2-weight: 700;
+    --h2-lineHeight: 28px;
+    --h3-size: 16px;
+    --h3-weight: 700;
+    --h3-lineHeight: 24px;
+    --h4-size: 16px;
+    --h4-weight: 700;
+    --h4-lineHeight: 24px;
+    --h5-size: 14px;
+    --h5-weight: 700;
+    --h5-lineHeight: 22px;
+    --body1-size: 16px;
+    --body1-weight: 400;
+    --body1-lineHeight: 24px;
+    --body2-size: 14px;
+    --body2-weight: 400;
+    --body2-lineHeight: 22px;
+    --body3-size: 14px;
+    --body3-weight: 400;
+    --body3-lineHeight: 22px;
+    --body4-size: 12px;
+    --body4-weight: 400;
+    --body4-lineHeight: 18px;
+
+    --surface-card: #fff;
+    --surface-overlay: #fff;
+
+    --p-breadcrumb-background: !important;
+    --pageTitle-size: 24px;
+    --pageTitle-weight: 700;
+    --pageTitle-lineHeight: 34.75px;
+    --pageSubTitle-size: 14px;
+    --pageSubTitle-weight: 700;
+    --pageSubTitle-lineHeight: 20.27px;
+
+
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fone-primary-main: #91BFFF;
+      --fone-primary-bg: #262B34;
+      --fone-primary-click: #74ACFB;
+      --fone-primary-hover: #A4CFFF;
+      --fone-text-level1: rgba(255, 255, 255, 0.85);
+      --fone-text-level2: rgba(255, 255, 255, 0.65);
+      --fone-text-level3: #ffffffcc;
+      --fone-text-disable: rgba(255, 255, 255, 0.15);
+      --fone-text-white: #ffffff;
+      --fone-text-logo: #ffffff;
+      --fone-bg: #17171a;
+      --fone-bg-btn: #323237;
+      --fone-bg-btn2: #2e2e2e;
+      --fone-bg-level1: #1d1d1e;
+      --fone-bg-level2: #232324;
+      --fone-bg-level3: #27272A;
+      --fone-bg-level4: #313134;
+      --fone-bg-level5: #292929;
+      --fone-bg-level6: #17171a;
+      --fone-bg-disable: rgba(255, 255, 255, 0.05);
+      --fone-bg-hover: #2a2a32;
+      --fone-border: #39393d;
+      --fone-border-oncolor: #33333380;
+      --fone-bg-backdrop: #17171A99;
+      --fone-bg-dark: #3B3B3F;
+      --fone-bg-guide: #2459CB;
+      --fone-theme-green: #27cbcb;
+      --fone-theme-red: #e74852;
+      --fone-surface: #ffffff;
+
+      --surface-ground: #17171a;
+
+      --tag-green: #71CBA2;
+      --tag-bg-green: #2B2E2C;
+      --tag-pink: #CB71CB;
+      --tag-bg-pink: #2E2B2E;
+      --tag-red: #E57979;
+      --tag-bg-red: #2E2B2B;
+      --tag-orange: #F0B385;
+      --tag-bg-orange: #2E2B2B;
+      --tag-skyblue: #5BD0DD;
+      --tag-bg-skyblue: #2B2E2E;
+
+      --status-success: #1FC97B;
+      --status-error: #E74852;
+      --status-notice: #5FA2FF;
+
+
+      --p-panel-toggleable-header-padding: 0.5rem 1.5rem;
+      --p-panel-content-padding: 0px 1.5rem 1.5rem 1.5rem;
+      --p-inputgroup-addon-background: #1d1d1e;
+      --p-text-muted-color: rgba(255, 255, 255, 0.8);
+      --p-datatable-header-cell-background: #1d1d1e;
+      --p-panel-header-background: #1d1d1e;
+      --p-datatable-row-hover-color: #9e8eff;
+      --p-datatable-row-hover-background: #2b2838;
+      --p-datatable-row-background: #242424;
+      --p-tooltip-background: #333333;
+      --p-overlay-popover-background: #17171a;
+      --p-content-background: #1d1d1e;
+      --p-button-text-secondary-active-background: #333333;
+      --p-button-primary-color: #1D1D1E;
+      --p-button-outlined-danger-border-color: #ef4444;
+
+      --p-button-contrast-background: #2e2e2e;
+      --p-button-contrast-hover-background: #333333;
+      --p-button-contrast-active-background: #333333;
+      --p-button-contrast-color: #ffffff;
+      --p-button-contrast-hover-color: #ffffff;
+      --p-button-contrast-active-color: #ffffff;
+      --p-primary-contrast-color: #1d1d1e;
+
+      --p-button-primary-hover-background: #A4CFFF;
+      --p-button-primary-active-background: #74ACFB;
+      --p-button-text-primary-hover-background: #262B34;
+      --p-button-text-primary-active-background: #74ACFB;
+
+      --p-button-text-secondary-color: #91BFFF;
+      --p-button-text-secondary-hover-background: #262B34;
+
+      --p-button-outlined-primary-hover-background: #262B34;
+      --p-button-outlined-primary-active-background: #74ACFB;
+
+      --p-button-text-danger-hover-background: #fecaca;
+      --p-button-text-danger-active-background: #fecaca;
+      --p-menubar-background: #1d1d1e;
+      --p-tabs-tab-background: #1d1d1e;
+      --p-tabs-tab-active-background: #1d1d1e;
+      --p-tabs-tab-border-width: 0px 0px 2px 0px;
+      --p-form-field-disabled-background: #39393d;
+      --p-fileupload-header-background: #1d1d1e;
+      --p-splitter-handle-background: rgba(255, 255, 255, 0.8);
+      --fone-primary-dashboard: #9e8eff;
+      --fone-ic-tool-bold: url("@/assets/img/icon/ic_tool_bold.svg");
+      --fone-ic-tool-bullet: url("@/assets/img/icon/ic_tool_bullet.svg");
+      --fone-ic-tool-palette: url("@/assets/img/icon/ic_tool_palette.svg");
+      --fone-ic-tool-stright: url("@/assets/img/icon/ic_tool_stright.svg");
+      --fone-ic-tool-size: url("@/assets/img/icon/ic_tool_size.svg");
+      --fone-ic-tool-left: url("@/assets/img/icon/ic_align_left.svg");
+      --fone-ic-tool-right: url("@/assets/img/icon/ic_align_right.svg");
+      --fone-ic-tool-mid: url("@/assets/img/icon/ic_align_mid.svg");
+
+      --p-button-secondary-hover-background: #262B34;
+      --p-button-secondary-hover-border-color: #2a2a32;
+      --p-button-secondary-active-background: #2a2a32;
+      --p-skeleton-background: rgba(255, 255, 255, 0.06);
+      --p-accordion-header-active-background: #242424;
+      --p-accordion-header-background: #1d1d1e;
+
+      --fone-home-card: #2b2838;
+      --p-toast-info-detail-color: #2563EB;
+
+      --p-message-info-background: rgba(59, 130, 246, 0.16);
+      --input-pic-icon: url("@/assets/img/icon/Picture_dark.svg");
+      --upload-pic-icon: url("@/assets/img/icon/ic_upload_files_dark.svg");
+      --fileupload-pic-icon: url("@/assets/img/icon/ic_upload_files_dark.svg");
+      --p-button-secondary-border-color: #39393d;
+      --p-checkbox-checked-hover-background: #A4CFFF;
+      --p-checkbox-checked-background: #91BFFF;
+
+      --p-menu-item-focus-color: #9e8eff;
+      --p-menu-item-focus-background: #E5F1FF;
+
+      --p-inputtext-focus-ring-shadow: none;
+      --p-inputtext-focus-border-color: #74ACFB;
+      --p-inputtext-hover-border-color: #A4CFFF;
+
+      --p-select-hover-border-color: #A4CFFF;
+      --p-select-focus-border-color: #74ACFB;
+
+      --p-paginator-nav-button-hover-background: #262B34;
+      --p-treetable-header-cell-background: #1d1d1e;
+      --p-accordion-header-color: ##FFFFFFD9;
+      --p-accordion-header-active-color: #74ACFB;
+      --fone-accordion-content-background: #232324;
+      --p-drawer-background: #232324;
+      --p-accordion-header-background: #232324;
+      --fone-card-hoverbtn-background: #323237;
+
+      --p-menu-item-focus-color: #74ACFB;
+      --p-menu-item-focus-background: #262B34;
+
+      --fone-tabs-background: #232324;
+      --p-button-padding-y: 5px;
+
+      --p-form-field-padding-y: 8px;
+      --p-chip-background: #141414;
+      --p-chip-color: #FFFFFFA6;
+      --p-chip-remove-icon-color: #FFFFFFA6;
+
+      --p-radiobutton-checked-border-color: #91BFFF;
+      --p-radiobutton-checked-background: #1d1d1e;
+      --p-radiobutton-icon-checked-color: #91BFFF;
+      --p-radiobutton-border-color: #727272;
+      --p-button-contrast-background: #323237;
+      --p-button-contrast-border-color: #39393D;
+      --p-button-contrast-color: #FFFFFFCC;
+    }
+  }
+
+  :root[class*="themeDark"] {
+    --fone-primary-main: #91BFFF;
+    --fone-primary-bg: #262B34;
+    --fone-primary-click: #74ACFB;
+    --fone-primary-hover: #A4CFFF;
+    --fone-text-level1: rgba(255, 255, 255, 0.85);
+    --fone-text-level2: rgba(255, 255, 255, 0.65);
+    --fone-text-level3: #ffffffcc;
+    --fone-text-disable: rgba(255, 255, 255, 0.15);
+    --fone-text-white: #ffffff;
+    --fone-text-logo: #ffffff;
+    --fone-bg: #17171a;
+    --fone-bg-btn: #323237;
+    --fone-bg-btn2: #2e2e2e;
+    --fone-bg-level1: #1d1d1e;
+    --fone-bg-level2: #232324;
+    --fone-bg-level3: #27272A;
+    --fone-bg-level4: #313134;
+    --fone-bg-level5: #292929;
+    --fone-bg-level6: #17171a;
+    --fone-bg-disable: rgba(255, 255, 255, 0.05);
+    --fone-bg-hover: #2a2a32;
+    --fone-border: #39393d;
+    --fone-border-oncolor: #33333380;
+    --fone-bg-backdrop: #17171A99;
+    --fone-bg-dark: #3B3B3F;
+    --fone-bg-guide: #2459CB;
+    --fone-theme-green: #27cbcb;
+    --fone-theme-red: #e74852;
+    --fone-surface: #ffffff;
+
+    --surface-ground: #17171a;
+
+    --tag-green: #71CBA2;
+    --tag-bg-green: #2B2E2C;
+    --tag-pink: #CB71CB;
+    --tag-bg-pink: #2E2B2E;
+    --tag-red: #E57979;
+    --tag-bg-red: #2E2B2B;
+    --tag-orange: #F0B385;
+    --tag-bg-orange: #2E2B2B;
+    --tag-skyblue: #5BD0DD;
+    --tag-bg-skyblue: #2B2E2E;
+
+    --status-success: #1FC97B;
+    --status-error: #E74852;
+    --status-notice: #5FA2FF;
+
+
+    --p-panel-toggleable-header-padding: 0.5rem 1.5rem;
+    --p-panel-content-padding: 0px 1.5rem 1.5rem 1.5rem;
+    --p-inputgroup-addon-background: #1d1d1e;
+    --p-text-muted-color: rgba(255, 255, 255, 0.8);
+    --p-datatable-header-cell-background: #1d1d1e;
+    --p-panel-header-background: #1d1d1e;
+    --p-datatable-row-hover-color: #9e8eff;
+    --p-datatable-row-hover-background: #2b2838;
+    --p-datatable-row-background: #242424;
+    --p-tooltip-background: #333333;
+    --p-overlay-popover-background: #17171a;
+    --p-content-background: #1d1d1e;
+    --p-button-text-secondary-active-background: #333333;
+    --p-button-primary-color: #1D1D1E;
+    --p-button-outlined-danger-border-color: #ef4444;
+
+    --p-button-contrast-background: #2e2e2e;
+    --p-button-contrast-hover-background: #333333;
+    --p-button-contrast-active-background: #333333;
+    --p-button-contrast-color: #ffffff;
+    --p-button-contrast-hover-color: #ffffff;
+    --p-button-contrast-active-color: #ffffff;
+    --p-primary-contrast-color: #1d1d1e;
+
+    --p-button-primary-hover-background: #A4CFFF;
+    --p-button-primary-active-background: #74ACFB;
+    --p-button-text-primary-hover-background: #262B34;
+    --p-button-text-primary-active-background: #74ACFB;
+
+    --p-button-text-secondary-color: #91BFFF;
+    --p-button-text-secondary-hover-background: #262B34;
+
+    --p-button-outlined-primary-hover-background: #262B34;
+    --p-button-outlined-primary-active-background: #74ACFB;
+
+    --p-button-text-danger-hover-background: #fecaca;
+    --p-button-text-danger-active-background: #fecaca;
+    --p-menubar-background: #1d1d1e;
+    --p-tabs-tab-background: #1d1d1e;
+    --p-tabs-tab-active-background: #1d1d1e;
+    --p-tabs-tab-border-width: 0px 0px 2px 0px;
+    --p-form-field-disabled-background: #39393d;
+    --p-fileupload-header-background: #1d1d1e;
+    --p-splitter-handle-background: rgba(255, 255, 255, 0.8);
+    /* --p-toggleswitch-background: #E7E7E7;
+        --p-toggleswitch-hover-background: rgba(255, 255, 255, 0.8);
+        --p-toggleswitch-checked-hover-background: #E7E7E7;
+        --p-toggleswitch-checked-background: #2A2A32;
+        --p-toggleswitch-hover-background: #E7E7E7;
+        --p-toggleswitch-handle-hover-background: #757575;
+        --p-toggleswitch-handle-checked-hover-background: #757575; */
+    --fone-primary-dashboard: #9e8eff;
+    --fone-ic-tool-bold: url("@/assets/img/icon/ic_tool_bold.svg");
+    --fone-ic-tool-bullet: url("@/assets/img/icon/ic_tool_bullet.svg");
+    --fone-ic-tool-palette: url("@/assets/img/icon/ic_tool_palette.svg");
+    --fone-ic-tool-stright: url("@/assets/img/icon/ic_tool_stright.svg");
+    --fone-ic-tool-size: url("@/assets/img/icon/ic_tool_size.svg");
+    --fone-ic-tool-left: url("@/assets/img/icon/ic_align_left.svg");
+    --fone-ic-tool-right: url("@/assets/img/icon/ic_align_right.svg");
+    --fone-ic-tool-mid: url("@/assets/img/icon/ic_align_mid.svg");
+
+    --p-button-secondary-hover-background: #262B34;
+    --p-button-secondary-hover-border-color: #2a2a32;
+    --p-button-secondary-active-background: #2a2a32;
+    --p-skeleton-background: rgba(255, 255, 255, 0.06);
+    --p-accordion-header-active-background: #242424;
+    --p-accordion-header-background: #1d1d1e;
+
+    --fone-home-card: #2b2838;
+    --p-toast-info-detail-color: #2563EB;
+
+    --p-message-info-background: rgba(59, 130, 246, 0.16);
+    --input-pic-icon: url("@/assets/img/icon/Picture_dark.svg");
+    --upload-pic-icon: url("@/assets/img/icon/ic_upload_files_dark.svg");
+    --fileupload-pic-icon: url("@/assets/img/icon/ic_upload_files_dark.svg");
+    --p-button-secondary-border-color: #39393d;
+    --p-checkbox-checked-hover-background: #A4CFFF;
+    --p-checkbox-checked-background: #91BFFF;
+
+    --p-menu-item-focus-color: #9e8eff;
+    --p-menu-item-focus-background: #E5F1FF;
+
+    --p-inputtext-focus-ring-shadow: none;
+    --p-inputtext-focus-border-color: #74ACFB;
+    --p-inputtext-hover-border-color: #A4CFFF;
+
+    --p-select-hover-border-color: #A4CFFF;
+    --p-select-focus-border-color: #74ACFB;
+
+    --p-paginator-nav-button-hover-background: #262B34;
+    --p-treetable-header-cell-background: #1d1d1e;
+    --p-accordion-header-color: ##FFFFFFD9;
+    --p-accordion-header-active-color: #74ACFB;
+    --fone-accordion-content-background: #232324;
+    --p-drawer-background: #232324;
+    --p-accordion-header-background: #232324;
+    --fone-card-hoverbtn-background: #323237;
+
+    --p-menu-item-focus-color: #74ACFB;
+    --p-menu-item-focus-background: #262B34;
+
+    --fone-tabs-background: #232324;
+    --p-button-padding-y: 0px;
+    --p-button-icon-only-width: 32px;
+
+    --p-form-field-padding-y: 8px;
+    --p-chip-background: #141414;
+    --p-chip-color: #FFFFFFA6;
+    --p-chip-remove-icon-color: #FFFFFFA6;
+
+    --p-radiobutton-checked-border-color: #91BFFF;
+    --p-radiobutton-checked-background: #1d1d1e;
+    --p-radiobutton-icon-checked-color: #91BFFF;
+    --p-radiobutton-border-color: #727272;
+    --p-button-contrast-background: #1D1D1E;
+    --p-button-contrast-border-color: #39393D;
+    --p-button-contrast-color: #FFFFFFCC;
+    --fone-propmt-card-background: #2C2C2C;
+
+    --p-menu-item-focus-color: #74ACFB;
+    --p-menu-item-focus-background: #262B34;
+    --p-datepicker-today-background: #74ACFB;
+    --p-datepicker-today-color: #fff;
+
+  }
+
+  :root[class*="themeLight"] {
+    --fone-primary-main: #0441C4;
+    --fone-primary-bg: #E5F1FF;
+    --fone-primary-click: #0034A6;
+    --fone-primary-hover: #0146DB;
+    --fone-text-level1: #333333;
+    --fone-text-level2: #727272;
+    --fone-text-level3: #333333;
+    --fone-text-disable: #9B9B9B;
+    --fone-text-logo: #333333;
+    --fone-text-white: #ffffff;
+    --fone-bg: #f2f3f7;
+    --fone-bg-btn: #F6F6F6;
+    --fone-bg-btn2: #f3f1ff;
+    --fone-bg-level1: #fdfdfd;
+    --fone-bg-level2: #fdfdfd;
+    --fone-bg-level3: #fdfdfd;
+    --fone-bg-level4: #f6f6f6;
+    --fone-bg-level5: #fdfdfd;
+    --fone-bg-level6: #f2f3f7;
+    --fone-bg-disable: #e7e7e7;
+    --fone-bg-hover: #f3f1ff;
+    --fone-border: #d8d8d8;
+    --fone-border-oncolor: #FFFFFF80;
+    --fone-bg-backdrop: #17171A99;
+    --fone-bg-dark: #333333;
+    --fone-bg-guide: #3F78F2;
+    --fone-theme-green: #b982ff;
+    --fone-theme-red: #e74852;
+    --fone-surface: #ffffff;
+    --surface-ground: #f2f3f7;
+
+    --tag-green: #00A459;
+    --tag-bg-green: #E3F9E9;
+    --tag-pink: #DD36D5;
+    --tag-bg-pink: #F3E3F9;
+    --tag-red: #DD3636;
+    --tag-bg-red: #F9E3E3;
+    --tag-orange: #FC7A00;
+    --tag-bg-orange: #F9EFE3;
+    --tag-skyblue: #00B6C0;
+    --tag-bg-skyblue: #E3F7F9;
+
+    --status-success: #1FC97B;
+    --status-error: #E74852;
+    --status-notice: #5FA2FF;
+
+    --p-datatable-header-cell-background: #f6f6f6;
+    --p-datatable-row-hover-color: #4530c3;
+
+    --p-panel-toggleable-header-padding: 0.5rem 1.5rem;
+    --p-panel-content-padding: 0px 1.5rem 1.5rem 1.5rem;
+
+    --p-button-text-primary-hover-background: #fdfdfd;
+    --p-button-text-primary-active-background: #fdfdfd;
+
+    --p-button-primary-hover-background: #0146DB;
+    --p-button-primary-active-background: #0034A6;
+
+    --p-button-text-secondary-color: #0441C4;
+    --p-button-text-secondary-hover-background: #E5F1FF;
+
+    --p-button-secondary-color: #0441C4;
+    --p-button-secondary-hover-background: #E5F1FF;
+    /* #E5F1FF */
+    --p-button-secondary-hover-border-color: #0441C4;
+    --p-button-secondary-hover-color: #0146DB;
+    /* #0146DB */
+    --p-button-secondary-active-background: #f3f1ff;
+
+    --p-button-outlined-primary-hover-background: #E5F1FF;
+    --p-button-outlined-primary-active-background: #FDFDFD;
+    --p-tooltip-background: #333333;
+    --p-overlay-popover-background: #fdfdfd;
+    --p-form-field-disabled-background: #f6f6f6;
+    --p-message-secondary-background: #f6f6f6;
+    --p-message-secondary-color: #333333;
+    --p-tag-contrast-background: #333333;
+    --p-datatable-border-color: #d8d8d8;
+
+    --p-button-contrast-background: #2b2838;
+    --p-button-contrast-hover-background: #333333;
+    --p-button-contrast-active-background: #333333;
+    --p-tabs-tab-border-width: 0px 0px 2px 0px;
+    --p-splitter-handle-background: #333333;
+    /* --p-toggleswitch-checked-hover-background: #757575;
+        --p-toggleswitch-checked-background: #333333;
+        --p-toggleswitch-hover-background: #E7E7E7;
+        --p-toggleswitch-handle-hover-background: #757575;
+        --p-toggleswitch-handle-checked-hover-background: #757575; */
+
+    --fone-primary-dashboard: #f3f1ff;
+    --fone-ic-tool-bold: url("@/assets/img/icon/ic_tool_bold_b.svg");
+    --fone-ic-tool-bullet: url("@/assets/img/icon/ic_tool_bullet_b.svg");
+    --fone-ic-tool-palette: url("@/assets/img/icon/ic_tool_palette_b.svg");
+    --fone-ic-tool-stright: url("@/assets/img/icon/ic_tool_stright_b.svg");
+    --fone-ic-tool-size: url("@/assets/img/icon/ic_tool_size_b.svg");
+    --fone-ic-tool-left: url("@/assets/img/icon/ic_align_left_b.svg");
+    --fone-ic-tool-right: url("@/assets/img/icon/ic_align_right_b.svg");
+    --fone-ic-tool-mid: url("@/assets/img/icon/ic_align_mid_b.svg");
+
+    --p-skeleton-background: #d8d8d8;
+    --p-accordion-header-active-background: #fdfdfd;
+    --p-accordion-header-background: #fdfdfd;
+
+
+    --p-select-option-selected-focus-background: #E5F1FF;
+    --fone-home-card: #727272;
+
+    --input-pic-icon: url("@/assets/img/icon/Picture_light.svg");
+    --upload-pic-icon: url("@/assets/img/icon/ic_upload_files_light.svg");
+    --fileupload-pic-icon: url("@/assets/img/icon/ic_upload_files_light.svg");
+
+    --p-button-secondary-border-color: #0441C4;
+    --p-checkbox-checked-hover-background: #0146DB;
+    --p-menu-item-focus-color: #0034A6;
+    --p-menu-item-focus-background: #E5F1FF;
+
+    --p-inputtext-hover-border-color: #0146DB;
+    --p-inputtext-focus-border-color: #0034A6;
+    --p-inputtext-focus-ring-shadow: none;
+
+    --p-select-hover-border-color: #0146DB;
+    --p-select-focus-border-color: #0034A6;
+    --p-select-focus-ring-shadow: none;
+
+    --p-multiselect-hover-border-color: #0146DB;
+    --p-multiselect-focus-border-color: #0034A6;
+    --p-multiselect-focus-ring-shadow: none;
+
+    --p-textarea-hover-border-color: #0146DB;
+    --p-textarea-focus-border-color: #0034A6;
+    --p-textarea-focus-ring-shadow: none;
+
+    --p-paginator-nav-button-hover-background: #E5F1FF;
+    --p-treetable-node-toggle-button-hover-background: #E5F1FF;
+    --p-accordion-header-color: #333333;
+    --p-accordion-header-active-color: #0034A6;
+    --fone-accordion-content-background: #E5F1FF;
+    --p-drawer-background: #fdfdfd;
+    --fone-card-hoverbtn-background: #fff;
+
+    --fone-tabs-background: #fdfdfd;
+    --p-button-padding-y: 0px;
+    --p-button-icon-only-width: 32px;
+
+    --p-form-field-padding-y: 8px;
+    --p-chip-background: #F2F3F7;
+    --p-chip-color: #727272;
+    --p-chip-remove-icon-color: #727272;
+
+    --p-radiobutton-checked-border-color: #0034A6;
+    --p-radiobutton-checked-background: #fdfdfd;
+    --p-radiobutton-icon-checked-color: #0034A6;
+    --p-radiobutton-border-color: #727272;
+    --p-button-contrast-background: #F6F6F6;
+    --p-button-contrast-border-color: #D8D8D8;
+    --p-button-contrast-color: #333333;
+    --p-button-primary-color: #FDFDFD;
+    --fone-propmt-card-background: #DAE1F3;
+
+    --p-toggleswitch-background: #9B9B9B;
+    --p-toggleswitch-hover-background: #9B9B9B;
+
+    --p-button-outlined-secondary-border-color: #d8d8d8;
+    --p-button-outlined-secondary-color: #333333;
+    --p-datepicker-today-background: #0034A6;
+    --p-datepicker-today-color: #fff;
+    --p-datatable-row-toggle-button-hover-color: #ffffff;
+  }
+}

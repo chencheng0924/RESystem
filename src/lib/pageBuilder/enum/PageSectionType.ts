@@ -1,0 +1,61 @@
+export enum PageSectionType {
+    FORM,
+    TABLE,
+    TABLE_TREE,
+    TABLE_SEARCH,
+    TABLE_SEARCH_FILTER,
+    WORKFLOW,
+    FILE_MANAGEMENT,
+    FILE_UPLOAD,
+    UPLOAD,
+    SCHEDULER,
+    CHAT_MESSAGE,
+    CHART,
+    FORUM,
+    TREE,
+    MARKDOWN,
+    MUlTI_SELECT_SEARCH,
+
+    PAGE_TITLE,//含麵包屑
+    PAGE_MENUBAR,
+    PAGE_MESSAGE,
+    PAGE_MASTER_INFO,
+    PAGE_TABS,
+    PAGE_POPVER,
+
+    DASHBOARD_CARDNUMBER,
+    DIALOG,
+    TIMELINE,
+
+    CARDPANEL,
+
+    CHATLINE,
+    FILE_DOWNLOAD,
+    ACCORDION,
+    CUSTOM,
+    TABCONTENT,// 區塊中的頁籤內容切換
+    SEARCHBAR,
+    DASHBOARD_BAR,
+    // 首頁圖表
+    CHART_SUMMARIZE,
+    CHART_PERCENTAGE,
+    EDITOR,  // 文字編輯器
+    EMPTY_VIEW,  // 空畫面顯示
+
+    CARDTITLE,
+    LISTVIEW_SEARCH,
+    TABLE_VIEW,
+    AI_CHAT,
+    SLIDER,
+    ATTRIBUTE_PANEL,
+
+    TREE_FORM,
+
+    AI_CHAT_NEW,  // TODO-DELELE: 測試用，之後會改成AI_CHAT
+
+    KeyValue,
+    MENU,
+    TabList,
+    CARDSELECT,
+    VERSION,
+}

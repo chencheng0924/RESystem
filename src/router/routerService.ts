@@ -4,7 +4,7 @@ import LoginLayout from '@/views/layout/LoginLayout.vue';
 import DefaultLayout from '@/views/layout/DefaultLayout.vue';
 class RouterService {
     constructor() { }
-    private _ignoreFile: string[] = ['home', 'demoClientForm'];
+    private _ignoreFile: string[] = ['home', 'demoClientForm', 'demoClientEvaluation'];
 
     getParentFolerName(path: string): string {
         let folderName: string[] = path.split("/");
@@ -62,6 +62,12 @@ class RouterService {
                 name: 'demoClientForm',
                 meta: { layout: DefaultLayout },
                 component: () => import('@/views/pages/demo/demoClientForm.vue'),
+            },
+            {
+                path: '/demoClientEvaluation',
+                name: 'demoClientEvaluation',
+                meta: { layout: DefaultLayout },
+                component: () => import('@/views/pages/demo/demoClientEvaluation.vue'),
             },
             // {
             //     path: '/testChatArea',

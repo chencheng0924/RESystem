@@ -182,4 +182,36 @@ export class DemoService {
       data: responseData,
     };
   }
+
+  public async addClientEvaluation(data: {
+    idToken: string;
+    srRtId: string;
+    srOverallScore: number;
+    srAttitudeScore: number;
+    srQualityScore: number;
+    srTimelinessScore: number;
+    srComment: string;
+    srSignedName: string;
+    srSignatureUrl: string;
+  }) {
+    const url = `/api/dww/serviceRating/liff`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    let responseData: any = null;
+    try {
+      responseData = await response.json();
+    } catch {
+      responseData = null;
+    }
+    return {
+      status: response.status,
+      ok: response.ok,
+      data: responseData,
+    };
+  }
 }

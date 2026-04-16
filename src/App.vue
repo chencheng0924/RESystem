@@ -14,7 +14,7 @@ let timer = new CountTime(1000*60 ,async ()=>{
   await tokenService.getCurrentToken();
 })
 const route = useRoute()
-const filters=['Login','error404', 'demoClientForm']
+const filters=['Login','error404', 'demoClientForm', 'demoClientEvaluation']
 function isFiltered(routeName: unknown, filters: string[]): boolean {
   return typeof routeName === 'string' && filters.includes(routeName)
 }

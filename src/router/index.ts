@@ -10,9 +10,9 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-
+    const whiteListRoutes = ['/login', '/demoClientEvaluation'];
     let isLogin = Logincheck.isLogin();
-    if (isLogin == false && to.path !== '/login') {
+    if (isLogin == false && whiteListRoutes.includes(to.path) === false) {
         next('/login')
     } else {
         next()
